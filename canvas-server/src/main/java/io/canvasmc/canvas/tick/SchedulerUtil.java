@@ -5,7 +5,7 @@ import ca.spottedleaf.concurrentutil.scheduler.EDFSchedulerThreadPool;
 import ca.spottedleaf.concurrentutil.scheduler.Scheduler;
 import ca.spottedleaf.concurrentutil.scheduler.StealingScheduledThreadPool;
 import ca.spottedleaf.moonrise.common.util.MoonriseConstants;
-import io.canvasmc.canvas.Config;
+
 import io.canvasmc.canvas.spark.profiler.RegionProfiler;
 import io.canvasmc.canvas.spark.profiler.RegionScheduleHandlePinner;
 import io.papermc.paper.threadedregions.ThreadedRegionizer;
@@ -78,11 +78,11 @@ public class SchedulerUtil {
                 return scheduler;
             }
             case AFFINITY: {
-                long runBufferNanos = (long) (Config.INSTANCE.scheduler.runTasksBufferMillis * 1_000_000L);
-                long stealThresh = Config.INSTANCE.scheduler.stealThresholdMillis * 1_000_000L;
-                boolean enableStealing = Config.INSTANCE.scheduler.enableWorkStealing;
-                boolean enableAffinity = Config.INSTANCE.scheduler.enableAffinitySchedulerCpuAffinity;
-                boolean enableIntermediateTasks = Config.INSTANCE.scheduler.enableMidTickTasks;
+                long runBufferNanos = (long) (io.canvasmc.canvas.GlobalConfiguration.getInstance().regionScheduler.affinityScheduler.runTasksBufferMillis * 1_000_000L);
+                long stealThresh = io.canvasmc.canvas.GlobalConfiguration.getInstance().regionScheduler.affinityScheduler.stealThresholdMillis * 1_000_000L;
+                boolean enableStealing = io.canvasmc.canvas.GlobalConfiguration.getInstance().regionScheduler.affinityScheduler.enableWorkStealing;
+                boolean enableAffinity = io.canvasmc.canvas.GlobalConfiguration.getInstance().regionScheduler.affinityScheduler.enableAffinitySchedulerCpuAffinity;
+                boolean enableIntermediateTasks = io.canvasmc.canvas.GlobalConfiguration.getInstance().regionScheduler.affinityScheduler.enableMidTickTasks;
                 HANDLER = new AffinityHandler();
                 return new AffinitySchedulerThreadPool(
                     initialThreads, threadFactory, runBufferNanos, stealThresh, SchedulerUtil::doesSupportRegionProfiler, enableStealing, enableAffinity, enableIntermediateTasks, (thrown) -> {

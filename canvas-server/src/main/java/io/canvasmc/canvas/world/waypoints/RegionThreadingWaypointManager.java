@@ -2,7 +2,7 @@ package io.canvasmc.canvas.world.waypoints;
 
 import ca.spottedleaf.concurrentutil.collection.MultiThreadedQueue;
 import ca.spottedleaf.moonrise.common.util.TickThread;
-import io.canvasmc.canvas.Config;
+
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -42,7 +42,7 @@ public class RegionThreadingWaypointManager extends ServerWaypointManager {
      * keeps nearby players synced up. The ideal value probably depends on your server’s density and how forgiving you
      * want the update delay to be.
      */
-    private static final double SCALE = Config.INSTANCE.waypointUpdateScale;
+    private static final double SCALE = io.canvasmc.canvas.WorldConfig.getDefaults().waypointUpdateScale;
 
     private final MultiThreadedQueue<WaypointTransmitter> waypoints = new MultiThreadedQueue<>();
     private final MultiThreadedQueue<ServerPlayer> players = new MultiThreadedQueue<>();

@@ -4,7 +4,7 @@ import ca.spottedleaf.concurrentutil.util.Priority;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.canvasmc.canvas.Config;
+
 import io.canvasmc.canvas.util.Codecs;
 import io.papermc.paper.threadedregions.TickRegionScheduler;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
@@ -62,7 +62,7 @@ public record EnderPearls(Map<UUID, List<Pearl>> pearls) {
     }
 
     public static EnderPearls read() {
-        if (Config.INSTANCE.restoreVanillaEnderPearlBehavior && Files.exists(SAVE_PATH)) {
+        if (io.canvasmc.canvas.GlobalConfiguration.getInstance().restoreVanillaEnderPearlBehavior && Files.exists(SAVE_PATH)) {
             try {
                 CompoundTag tag = Objects.requireNonNull(NbtIo.readCompressed(SAVE_PATH, NbtAccounter.unlimitedHeap()), "NBT cannot be null")
                     .asCompound().orElseThrow(UnknownError::new);
@@ -87,7 +87,7 @@ public record EnderPearls(Map<UUID, List<Pearl>> pearls) {
         });
         return future.handle((result, thrown) -> {
             if (result == null || !result) {
-                Config.LOGGER.warn("Could not save to pearls.dat", thrown);
+                io.canvasmc.canvas.GlobalConfiguration.LOGGER.warn("Could not save to pearls.dat", thrown);
             }
             if (callback != null) callback.accept(thrown == null);
             return result;
@@ -106,7 +106,7 @@ public record EnderPearls(Map<UUID, List<Pearl>> pearls) {
 
     public void addPearl(final UUID uuid, final ThrownEnderpearl thrownEnderpearl) {
         if (thrownEnderpearl.isRemoved()) {
-            Config.LOGGER.warn("Trying to add removed ({}) ender pearl, skipping", thrownEnderpearl.getRemovalReason(), new Throwable());
+            io.canvasmc.canvas.GlobalConfiguration.LOGGER.warn("Trying to add removed ({}) ender pearl, skipping", thrownEnderpearl.getRemovalReason(), new Throwable());
             return;
         }
         List<Pearl> pearls = pearls().computeIfAbsent(uuid, (ignored) -> new CopyOnWriteArrayList<>());
@@ -148,7 +148,7 @@ public record EnderPearls(Map<UUID, List<Pearl>> pearls) {
         public static Pearl of(ThrownEnderpearl pearl) {
             final CompoundTag tag;
             try (final ProblemReporter.ScopedCollector problemReporter = new ProblemReporter.ScopedCollector(
-                () -> "pearl-serialize", Config.LOGGER
+                () -> "pearl-serialize", io.canvasmc.canvas.GlobalConfiguration.LOGGER
             )) {
                 final TagValueOutput tagValueOutput = TagValueOutput.createWithContext(
                     problemReporter,
@@ -168,7 +168,7 @@ public record EnderPearls(Map<UUID, List<Pearl>> pearls) {
             final CompoundTag data = serialized.getCompound("data").orElseThrow();
             final ServerLevel world = MinecraftServer.getServer().getLevel(serialized.read("world", Level.RESOURCE_KEY_CODEC).orElseThrow());
             if (world == null) {
-                Config.LOGGER.error("World ({}) did not exist, skipping pearl spawn", serialized.getString("world"));
+                io.canvasmc.canvas.GlobalConfiguration.LOGGER.error("World ({}) did not exist, skipping pearl spawn", serialized.getString("world"));
                 return;
             }
             Entity entity = EntityType.loadEntityRecursive(data, world, EntitySpawnReason.LOAD, EntityProcessor.NOP);
@@ -176,11 +176,11 @@ public record EnderPearls(Map<UUID, List<Pearl>> pearls) {
                 world.canvas$loadOrRunAtChunksAsync(entity.blockPosition, 16, Priority.NORMAL, () -> {
                     world.addFreshEntityWithPassengers(entity);
                     ServerPlayer.placeEnderPearlTicket(world, entity.chunkPosition());
-                    Config.LOGGER.debug("Spawned saved pearl in world ({})", world.dimension().identifier());
+                    io.canvasmc.canvas.GlobalConfiguration.LOGGER.debug("Spawned saved pearl in world ({})", world.dimension().identifier());
                 });
             }
             else {
-                Config.LOGGER.warn("Failed to spawn player ender pearl in world ({}), skipping", world.dimension().identifier().toDebugFileName());
+                io.canvasmc.canvas.GlobalConfiguration.LOGGER.warn("Failed to spawn player ender pearl in world ({}), skipping", world.dimension().identifier().toDebugFileName());
             }
         }
 

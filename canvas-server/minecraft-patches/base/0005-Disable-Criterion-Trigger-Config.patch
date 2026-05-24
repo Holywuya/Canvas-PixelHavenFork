@@ -14,7 +14,7 @@ index 922b4030bc30e7cc7eda10e29d9bc6182cdd3eb0..541529ea6763d1e7eeeddc94dc6ccb0e
      }
  
      public void trigger(ServerPlayer player, BlockPos pos, ItemStack stack) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          ServerLevel serverLevel = player.level();
          BlockState blockState = serverLevel.getBlockState(pos);
          LootParams lootParams = new LootParams.Builder(serverLevel)
@@ -26,7 +26,7 @@ index b21bdb8b1aca395d7b2d8a7c448ebb9b6fc1b5f6..c6b544dd621dbc628bf7050480b29954
      }
  
      public void trigger(ServerPlayer player, Animal parent, Animal partner, @Nullable AgeableMob child) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          LootContext lootContext = EntityPredicate.createContext(player, parent);
          LootContext lootContext1 = EntityPredicate.createContext(player, partner);
          LootContext lootContext2 = child != null ? EntityPredicate.createContext(player, child) : null;
@@ -38,7 +38,7 @@ index 557643df6caca105850c66d523dee022bdda4013..b372670ccf8f8dccc5984cf35a75bd06
      }
  
      public void trigger(ServerPlayer player, Collection<? extends Entity> entityTriggered) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          List<LootContext> list = entityTriggered.stream().map(entity -> EntityPredicate.createContext(player, entity)).collect(Collectors.toList());
          this.trigger(player, instance -> instance.matches(list));
      }
@@ -50,7 +50,7 @@ index 087da78fc80355479b920c3d7ca8132396c406b4..b45b5b4903038f8f99a9537b92c36a0c
      }
  
      public void trigger(ServerPlayer player, Zombie zombie, Villager villager) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          LootContext lootContext = EntityPredicate.createContext(player, zombie);
          LootContext lootContext1 = EntityPredicate.createContext(player, villager);
          this.trigger(player, instance -> instance.matches(lootContext, lootContext1));
@@ -62,7 +62,7 @@ index 795cd227ce830cf18ae53a407cb54c41d7083de7..05b5464e19943b887f54d0c31c2c0bd9
      }
  
      public void trigger(ServerPlayer player, BlockPos pos) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          ServerLevel serverLevel = player.level();
          BlockState blockState = serverLevel.getBlockState(pos);
          LootParams lootParams = new LootParams.Builder(serverLevel)
@@ -74,7 +74,7 @@ index 234011847cbc706d95c343b894308ed1af0974d2..57d850ef10c2e28df0a4668df9ea3af5
      }
  
      public void trigger(ServerPlayer player, Vec3 position) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          Vec3 vec3 = player.position();
          this.trigger(player, instance -> instance.matches(player.level(), position, vec3));
      }
@@ -86,7 +86,7 @@ index 9a271377736f3a83100f2c23424f9559d12f5cef..7407496e8b5993b9cd64e8395b226269
      }
  
      public void trigger(ServerPlayer player, @Nullable Entity source) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          LootContext lootContext = source != null ? EntityPredicate.createContext(player, source) : null;
          this.trigger(player, instance -> instance.matches(player, lootContext));
      }
@@ -98,7 +98,7 @@ index 6923d352d363485c7ffb30713deec66acc9af858..24b0ba2d36386471296fb4137845fee5
      }
  
      public void trigger(ServerPlayer player, Vec3 pos, @Nullable Entity entity) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          Vec3 vec3 = player.position();
          LootContext lootContext = entity != null ? EntityPredicate.createContext(player, entity) : null;
          this.trigger(player, triggerInstance -> triggerInstance.matches(player.level(), pos, vec3, lootContext));
@@ -110,7 +110,7 @@ index 2d926350eae16c8da31d3679863e8f7e223d5811..93404175f65818e4f1a6c5c2f20dc814
      }
  
      public void trigger(ServerPlayer player, ItemStack rod, FishingHook entity, Collection<ItemStack> stacks) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          LootContext lootContext = EntityPredicate.createContext(player, (Entity)(entity.getHookedIn() != null ? entity.getHookedIn() : entity));
          this.trigger(player, instance -> instance.matches(rod, lootContext, stacks));
      }
@@ -122,7 +122,7 @@ index 29d378939629549b5de1490cab5851c91864a04f..67bf5a6622cf3b8936a8bc39fbc089b5
      }
  
      public void trigger(ServerPlayer player, Inventory inventory, ItemStack stack) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          int i = 0;
          int i1 = 0;
          int i2 = 0;
@@ -134,7 +134,7 @@ index 9ab22fe356e357653f7de98e297f312ac7184ed9..e456a38caf39bb515c44decb61f8e4b1
      }
  
      public void trigger(ServerPlayer player, BlockPos pos, ItemStack stack) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          ServerLevel serverLevel = player.level();
          BlockState blockState = serverLevel.getBlockState(pos);
          LootParams lootParams = new LootParams.Builder(serverLevel)
@@ -146,7 +146,7 @@ index 91a2b8879c4cf24932b3fac632e32e9a80853094..e1e365d09613b914a2b04df23ce3396c
      }
  
      public void trigger(ServerPlayer player, Collection<Entity> victims, @Nullable ItemStack firedFromWeapon) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          List<LootContext> list = Lists.newArrayList();
          Set<EntityType<?>> set = Sets.newHashSet();
  
@@ -158,7 +158,7 @@ index f1ea7f70ca5fa92f2c17b7f2fffde1f31fda1831..5871e77aeefdc0c1c6934ab72864c00d
      }
  
      public void trigger(ServerPlayer player, Entity entity, DamageSource damageSource) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          LootContext lootContext = EntityPredicate.createContext(player, entity);
          this.trigger(player, instance -> instance.matches(player, lootContext, damageSource));
      }
@@ -170,7 +170,7 @@ index 4e6a0aa463cbc360029b4d02249973e4030e18ae..83e3b8b7473c0c284b914b147160ff2a
      }
  
      public void trigger(ServerPlayer player, LightningBolt lightning, List<Entity> nearbyEntities) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          List<LootContext> list = nearbyEntities.stream().map(entity -> EntityPredicate.createContext(player, entity)).collect(Collectors.toList());
          LootContext lootContext = EntityPredicate.createContext(player, lightning);
          this.trigger(player, instance -> instance.matches(lootContext, list));
@@ -182,7 +182,7 @@ index 49e5e309faf41f5ea22f2e7f7bd60281896354e9..69d8ac68ff5e5306de767b8b8835353c
      }
  
      public void trigger(ServerPlayer player, ItemStack stack, @Nullable Entity entity) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          LootContext lootContext = EntityPredicate.createContext(player, entity);
          this.trigger(player, instance -> instance.matches(player, stack, lootContext));
      }
@@ -194,7 +194,7 @@ index be34086e410638823c492ef4217eb2395d77fa5b..4bec7d0a05b316e28dc006cad809dc03
      }
  
      public void trigger(ServerPlayer player, Entity entity, DamageSource damageSource, float dealtDamage, float takenDamage, boolean blocked) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          LootContext lootContext = EntityPredicate.createContext(player, entity);
          this.trigger(player, instance -> instance.matches(player, lootContext, damageSource, dealtDamage, takenDamage, blocked));
      }
@@ -206,7 +206,7 @@ index 333e0d4dd3ca3b0f7556f3563f8356b333710d63..f235f01fe0f7a699f2287fc4c5b97136
      }
  
      public void trigger(ServerPlayer player, ItemStack item, Entity entity) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          LootContext lootContext = EntityPredicate.createContext(player, entity);
          this.trigger(player, instance -> instance.matches(item, lootContext));
      }
@@ -218,7 +218,7 @@ index 368a9d33f93c2e85abe4cf10df5a85c09fb03dd6..54508cf19c58c8f3e01851ae3c0a3960
      }
  
      protected void trigger(ServerPlayer player, Predicate<T> testTrigger) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          PlayerAdvancements advancements = player.getAdvancements();
          Set<CriterionTrigger.Listener<T>> set = (Set) advancements.criterionData.get(this); // Paper - fix PlayerAdvancements leak
          if (set != null && !set.isEmpty()) {
@@ -230,7 +230,7 @@ index f442a819dde1650ac78715ca2a9332e1a16d1b37..8ed8957b53f8171e02e37dbed56b6d15
      }
  
      public void trigger(ServerPlayer player, Entity entity) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          LootContext lootContext = EntityPredicate.createContext(player, entity);
          this.trigger(player, instance -> instance.matches(lootContext));
      }
@@ -242,7 +242,7 @@ index c82f5e833f455b03a660ed385dc7eee593a66cb7..294fecb0a38492fa9538b214c1a9aa51
      }
  
      public void trigger(ServerPlayer player, Animal entity) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          LootContext lootContext = EntityPredicate.createContext(player, entity);
          this.trigger(player, instance -> instance.matches(lootContext));
      }
@@ -254,7 +254,7 @@ index 2c581ccd6614e434788dc65fa53b1308b46613d1..255098beb8b0da9ff2368236d879e95a
      }
  
      public void trigger(ServerPlayer player, Entity projectile, Vec3 vector, int signalStrength) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          LootContext lootContext = EntityPredicate.createContext(player, projectile);
          this.trigger(player, instance -> instance.matches(lootContext, vector, signalStrength));
      }
@@ -266,7 +266,7 @@ index 883a51aefc1eb1a74c5abfb6a25ffa31b22179ab..68e72f1f929dd13378aaa351d892e09a
      }
  
      public void trigger(ServerPlayer player, AbstractVillager villager, ItemStack stack) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          LootContext lootContext = EntityPredicate.createContext(player, villager);
          this.trigger(player, instance -> instance.matches(lootContext, stack));
      }
@@ -278,7 +278,7 @@ index f587f7f4068452b52df2f4d442c437dbb389d961..59ca62995b5c4cb974ba3bafa2a4ca71
      }
  
      public void trigger(ServerPlayer player, BlockPos pos) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
          double d = player.getX() - pos.getX();
          double d1 = player.getZ() - pos.getZ();
          double d2 = d * d + d1 * d1;

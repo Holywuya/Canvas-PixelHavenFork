@@ -4,7 +4,7 @@ import ca.spottedleaf.moonrise.common.time.TickData;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.canvasmc.canvas.Config;
+
 import io.papermc.paper.adventure.PaperAdventure;
 import io.papermc.paper.threadedregions.RegionizedWorldData;
 import io.papermc.paper.threadedregions.TickRegionScheduler;
@@ -50,7 +50,7 @@ public class RegionizedTpsBar {
 
     public RegionizedTpsBar(RegionizedWorldData worldData) {
         this.worldData = worldData;
-        this.canTick = Config.INSTANCE.enableTpsBar;
+        this.canTick = io.canvasmc.canvas.WorldConfig.getDefaults().regionBars.enableTpsBar;
     }
 
     public static @NonNull Component gradient(final String textContent, final @Nullable Consumer<Style.Builder> style, final TextColor... colors) {
@@ -94,7 +94,7 @@ public class RegionizedTpsBar {
     }
 
     private @NonNull Component buildComponent(final double tps, final double mspt, final double utilPercent, final int players, final boolean sprinting) {
-        final String raw = Config.INSTANCE.tpsBarFormat;
+        final String raw = io.canvasmc.canvas.WorldConfig.getDefaults().regionBars.tpsBarFormat;
         final String effectiveRaw = (raw == null || raw.isBlank()) ? "" : raw;
         FormatEntry entry = cachedFormat.get();
         if (entry == null || !effectiveRaw.equals(entry.raw())) {
@@ -309,7 +309,7 @@ public class RegionizedTpsBar {
 
         @Override
         public boolean enabled() {
-            return Config.INSTANCE.enableTpsBar && enabled;
+            return io.canvasmc.canvas.WorldConfig.getDefaults().regionBars.enableTpsBar && enabled;
         }
     }
 

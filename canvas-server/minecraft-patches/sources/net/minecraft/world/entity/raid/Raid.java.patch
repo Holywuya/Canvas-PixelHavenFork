@@ -5,7 +5,7 @@
              if (squareRoot <= 64.0 || players.contains(serverPlayer)) {
                  serverPlayer.connection
 -                    .send(new ClientboundSoundPacket(SoundEvents.RAID_HORN, SoundSource.NEUTRAL, d, serverPlayer.getY(), d1, 64.0F, 1.0F, randomLong));
-+                    .send(new ClientboundSoundPacket(SoundEvents.RAID_HORN, io.canvasmc.canvas.Config.INSTANCE.fixes.mc245394 ? SoundSource.HOSTILE : SoundSource.NEUTRAL, d, serverPlayer.getY(), d1, 64.0F, 1.0F, randomLong)); // Canvas - MC-245394
++                    .send(new ClientboundSoundPacket(SoundEvents.RAID_HORN, io.canvasmc.canvas.GlobalConfiguration.getInstance().vanillaFixes.mc245394 ? SoundSource.HOSTILE : SoundSource.NEUTRAL, d, serverPlayer.getY(), d1, 64.0F, 1.0F, randomLong)); // Canvas - MC-245394
              }
          }
      }

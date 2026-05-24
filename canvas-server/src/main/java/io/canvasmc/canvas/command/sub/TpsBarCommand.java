@@ -2,7 +2,7 @@ package io.canvasmc.canvas.command.sub;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import io.canvasmc.canvas.Config;
+
 import io.canvasmc.canvas.command.Command;
 import io.canvasmc.canvas.world.RegionizedTpsBar;
 import java.util.Collection;
@@ -53,7 +53,7 @@ public class TpsBarCommand implements Command {
 
     @Override
     public LiteralArgumentBuilder<CommandSourceStack> construct(LiteralArgumentBuilder<CommandSourceStack> base) {
-        if (!Config.INSTANCE.enableTpsBar) {
+        if (!io.canvasmc.canvas.WorldConfig.getDefaults().regionBars.enableTpsBar) {
             return base.executes(ctx -> {
                 ctx.getSource().sendFailure(Component.literal("TPS bar is disabled in the config."));
                 return 0;

@@ -3,7 +3,7 @@ package io.canvasmc.canvas.command.sub;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import io.canvasmc.canvas.Config;
+import io.canvasmc.canvas.GlobalConfiguration;
 import io.canvasmc.canvas.command.Command;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.MinecraftServer;
@@ -19,7 +19,7 @@ public class SetMaxPlayersCommand implements Command {
 
     private static int execute(int newSize, boolean persist) {
         setMaxPlayers(newSize, persist);
-        Config.GLOBAL_BROADCAST.accept("Set max player count to " + newSize);
+        GlobalConfiguration.broadcast("Set max player count to " + newSize, GlobalConfiguration.INFO);
         return 1;
     }
 

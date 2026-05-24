@@ -4,7 +4,7 @@
              level.setBlock(pos, blockState, Block.UPDATE_ALL);
              level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
              player.awardStat(Stats.POT_FLOWER);
-+            if (io.canvasmc.canvas.Config.INSTANCE.fixes.mc231743) player.awardStat(Stats.ITEM_USED.get(player.getItemInHand(hand).getItem())); // Canvas - MC-231743
++            if (io.canvasmc.canvas.GlobalConfiguration.getInstance().vanillaFixes.mc231743) player.awardStat(Stats.ITEM_USED.get(player.getItemInHand(hand).getItem())); // Canvas - MC-231743
              stack.consume(1, player);
              return InteractionResult.SUCCESS;
          }

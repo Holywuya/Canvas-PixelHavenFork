@@ -56,7 +56,7 @@ public final class ScheduledHandleTickState {
         processAllActions();
 
         // check if overloaded
-        if (lastTickTimeEndNanos != UNSET && lastTickTimeEndNanos + TickRegionScheduler.getTimeBetweenTicks() + (io.canvasmc.canvas.Config.INSTANCE.scheduler.overloadedLogMillis * 1_000_000L) <= nanos) {
+        if (lastTickTimeEndNanos != UNSET && lastTickTimeEndNanos + TickRegionScheduler.getTimeBetweenTicks() + (io.canvasmc.canvas.GlobalConfiguration.getInstance().regionScheduler.overloadedLogMillis * 1_000_000L) <= nanos) {
             // missed deadline to be considered "overloaded"
             double seconds = (nanos - (lastTickTimeEndNanos + TickRegionScheduler.getTimeBetweenTicks())) / 1_000_000_000.0;
             String formatted = String.format("%.2f", seconds);

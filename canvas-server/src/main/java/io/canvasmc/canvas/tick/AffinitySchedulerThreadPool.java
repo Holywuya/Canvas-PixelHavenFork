@@ -4,7 +4,7 @@ import ca.spottedleaf.concurrentutil.scheduler.SchedulableTick;
 import ca.spottedleaf.concurrentutil.scheduler.Scheduler;
 import ca.spottedleaf.concurrentutil.util.ConcurrentUtil;
 import ca.spottedleaf.concurrentutil.util.TimeUtil;
-import io.canvasmc.canvas.Config;
+
 import io.canvasmc.canvas.util.CpuInfoReport;
 import io.canvasmc.canvas.util.collection.FastHeapPriorityQueue;
 import java.lang.invoke.VarHandle;
@@ -106,7 +106,7 @@ public final class AffinitySchedulerThreadPool extends Scheduler {
                 affinitySet = new BitSet();
             }
             else {
-                affinitySet = getAffinity(Config.INSTANCE.scheduler.tickRegionAffinity);
+                affinitySet = getAffinity(io.canvasmc.canvas.GlobalConfiguration.getInstance().regionScheduler.affinityScheduler.tickRegionAffinity);
             }
         }
         else affinitySet = new BitSet();
@@ -128,34 +128,20 @@ public final class AffinitySchedulerThreadPool extends Scheduler {
         this.runners = runners;
     }
 
-    private @NonNull BitSet getAffinity(@NonNull List<String> affinity) {
-        if (affinity.isEmpty()) {
+    private @NonNull BitSet getAffinity(@NonNull int[] affinity) {
+        if (affinity.length == 0) {
             LOGGER.warn("No affinity set configured, backing off, logging CPU topology:\n{}", CpuInfoReport.compileOutput());
             return new BitSet();
         }
         int maxAvailable = Runtime.getRuntime().availableProcessors();
-        BitSet affinitySet = new BitSet(affinity.size());
-        affinity.stream()
-            .mapToInt(str -> {
-                try {
-                    return Integer.parseInt(str);
-                } catch (NumberFormatException ignored) {
-                    LOGGER.error("Unable to parse cpu id {} to a valid number, falling back to 0.", str);
-                    return -1;
-                }
-            })
-            .distinct()
-            .filter(cpuId -> {
-                // don't log parse error cpus
-                if (cpuId == -1) return false;
-                if (cpuId >= 0 && cpuId < maxAvailable) {
-                    return true;
-                } else {
-                    LOGGER.error("Invalid cpu id {}, ignoring.", cpuId);
-                    return false;
-                }
-            })
-            .forEach(affinitySet::set);
+        BitSet affinitySet = new BitSet(affinity.length);
+        for (int cpuId : affinity) {
+            if (cpuId >= 0 && cpuId < maxAvailable) {
+                affinitySet.set(cpuId);
+            } else {
+                LOGGER.error("Invalid cpu id {}, ignoring.", cpuId);
+            }
+        }
         return affinitySet;
     }
 

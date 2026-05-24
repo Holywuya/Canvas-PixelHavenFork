@@ -5,7 +5,7 @@
                      this.disconnect(Component.translatable("disconnect.timeout"));
                  } else {
 -                    Component component = Component.translatable("disconnect.genericReason", "Internal Exception: " + exception);
-+                    Component component = Component.translatable("disconnect.genericReason", "Internal Exception: " + (exception instanceof PacketEncoder.PacketTooLargeException ? io.canvasmc.canvas.Config.INSTANCE.networking.packetTooLargeDisconnectReason : exception)); // Canvas - configurable packet too large disconnect reason
++                    Component component = Component.translatable("disconnect.genericReason", "Internal Exception: " + (exception instanceof PacketEncoder.PacketTooLargeException ? io.canvasmc.canvas.GlobalConfiguration.getInstance().networking.packetTooLargeDisconnectReason : exception)); // Canvas - configurable packet too large disconnect reason
                      PacketListener packetListener = this.packetListener;
                      DisconnectionDetails disconnectionDetails;
                      if (packetListener != null) {
@@ -13,7 +13,7 @@
          if (protocolInfo.flow() != this.getReceiving()) {
              throw new IllegalStateException("Invalid inbound protocol: " + protocolInfo.id());
          } else {
-+            boolean enableASP = io.canvasmc.canvas.Config.INSTANCE.networking.asyncProtocolSwitch && ca.spottedleaf.moonrise.common.util.TickThread.isTickThread(); // Canvas - async protocol switch
++            boolean enableASP = io.canvasmc.canvas.GlobalConfiguration.getInstance().networking.asyncProtocolSwitch && ca.spottedleaf.moonrise.common.util.TickThread.isTickThread(); // Canvas - async protocol switch
 +            if (enableASP) this.channel.config().setAutoRead(false); // Canvas - async protocol switch
              this.packetListener = packetInfo;
              this.disconnectListener = null;
@@ -57,7 +57,7 @@
 +            outboundTask.andThen(context -> this.sendLoginDisconnect = isLoginProtocol)
 +        );
 +
-+        if (io.canvasmc.canvas.Config.INSTANCE.networking.asyncProtocolSwitch) {
++        if (io.canvasmc.canvas.GlobalConfiguration.getInstance().networking.asyncProtocolSwitch) {
 +            future.addListener((ChannelFutureListener) Connection::syncAfterConfigurationChange);
 +            return future;
 +        }

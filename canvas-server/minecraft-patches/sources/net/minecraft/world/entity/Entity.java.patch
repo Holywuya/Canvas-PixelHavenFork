@@ -33,7 +33,7 @@
  
          //if (this instanceof ServerPlayer) this.handlePortal(); // CraftBukkit - Moved up to postTick // Folia - region threading - ONLY allow in postTick()
 -        if (this.canSpawnSprintParticle()) {
-+        if (!io.canvasmc.canvas.Config.INSTANCE.particles.disableSprintParticles && this.canSpawnSprintParticle()) { // Canvas - particles config
++        if (!io.canvasmc.canvas.WorldConfig.getDefaults().visuals.particles.disableSprintParticles && this.canSpawnSprintParticle()) { // Canvas - particles config
              this.spawnSprintParticle();
          }
  
@@ -44,8 +44,8 @@
 +            // Canvas start - hide flames on entities with fire resistance or invis
 +            if (this instanceof net.minecraft.world.entity.LivingEntity livingEntity) {
 +                this.setSharedFlagOnFire(this.remainingFireTicks > 0 &&
-+                    (!io.canvasmc.canvas.Config.INSTANCE.networking.hideFlamesOnEntitiesWithFireResistance || !livingEntity.hasEffect(net.minecraft.world.effect.MobEffects.FIRE_RESISTANCE)) &&
-+                    (!io.canvasmc.canvas.Config.INSTANCE.networking.hideFlamesOnEntitiesWithInvisibility || !livingEntity.isInvisible())
++                    (!io.canvasmc.canvas.WorldConfig.getDefaults().visuals.hideFlamesOnEntitiesWithFireResistance || !livingEntity.hasEffect(net.minecraft.world.effect.MobEffects.FIRE_RESISTANCE)) &&
++                    (!io.canvasmc.canvas.WorldConfig.getDefaults().visuals.hideFlamesOnEntitiesWithInvisibility || !livingEntity.isInvisible())
 +                );
 +            } else {
 +            // Canvas end - hide flames on entities with fire resistance or invis
@@ -207,7 +207,7 @@
  
          float f1 = Mth.floor(this.getY());
  
-+        if (!io.canvasmc.canvas.Config.INSTANCE.particles.disableWaterSplashParticles) { // Canvas - particles config
++        if (!io.canvasmc.canvas.WorldConfig.getDefaults().visuals.particles.disableWaterSplashParticles) { // Canvas - particles config
          for (int i = 0; i < 1.0F + this.dimensions.width() * 20.0F; i++) {
              double d = (this.random.nextDouble() * 2.0 - 1.0) * this.dimensions.width();
              double d1 = (this.random.nextDouble() * 2.0 - 1.0) * this.dimensions.width();
@@ -291,7 +291,7 @@
      }
  
      protected static void sendBubbleColumnParticles(Level level, BlockPos pos) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.particles.disableBubbleColumnParticles) return; // Canvas - particles config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().visuals.particles.disableBubbleColumnParticles) return; // Canvas - particles config
          if (level instanceof ServerLevel serverLevel) {
              for (int i = 0; i < 2; i++) {
                  serverLevel.sendParticles(
@@ -300,7 +300,7 @@
          ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this, "Cannot portal entity async");
  
 -        ServerLevel destination = this.level().getServer().getLevel(this.level().getTypeKey() == net.minecraft.world.level.dimension.LevelStem.END ? Level.OVERWORLD : Level.END);
-+        ServerLevel destination = this.level().getServer().getLevel(this.level().getTypeKey() == net.minecraft.world.level.dimension.LevelStem.END ? io.canvasmc.canvas.Config.INSTANCE.fetchRespawnDimensionKey() : Level.END); // Canvas - default respawn dimension config
++        ServerLevel destination = this.level().getServer().getLevel(this.level().getTypeKey() == net.minecraft.world.level.dimension.LevelStem.END ? io.canvasmc.canvas.GlobalConfiguration.fetchRespawnDimensionKey() : Level.END); // Canvas - default respawn dimension config
          if (destination == null) {
              // wat
              return false;
@@ -309,7 +309,7 @@
          ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this, "Cannot portal entity async");
  
 -        ServerLevel destination = this.level().getServer().getLevel(this.level().getTypeKey() == net.minecraft.world.level.dimension.LevelStem.NETHER ? Level.OVERWORLD : Level.NETHER);
-+        ServerLevel destination = this.level().getServer().getLevel(this.level().getTypeKey() == net.minecraft.world.level.dimension.LevelStem.NETHER ? io.canvasmc.canvas.Config.INSTANCE.fetchRespawnDimensionKey() : Level.NETHER); // Canvas - default respawn dimension config
++        ServerLevel destination = this.level().getServer().getLevel(this.level().getTypeKey() == net.minecraft.world.level.dimension.LevelStem.NETHER ? io.canvasmc.canvas.GlobalConfiguration.fetchRespawnDimensionKey() : Level.NETHER); // Canvas - default respawn dimension config
          if (destination == null) {
              // wat
              return false;
@@ -318,7 +318,7 @@
              // set portal cooldown
              node.root.setPortalCooldown();
 +            // Canvas start - region threading
-+            if (io.canvasmc.canvas.Config.INSTANCE.displayWorldLoadScreenForPortaling && node.root instanceof ServerPlayer player) {
++            if (io.canvasmc.canvas.GlobalConfiguration.getInstance().displayWorldLoadScreenForPortaling && node.root instanceof ServerPlayer player) {
 +                player.connection.send(new net.minecraft.network.protocol.game.ClientboundRespawnPacket(
 +                    player.createCommonSpawnInfo(destination),
 +                    net.minecraft.network.protocol.game.ClientboundRespawnPacket.KEEP_ALL_DATA
@@ -333,7 +333,7 @@
      public boolean canTeleport(Level fromLevel, Level toLevel) {
          if (!this.isAlive() || !this.valid) return false; // Paper - Fix item duplication and teleport issues
 -        if (fromLevel.dimension() == Level.END && toLevel.dimension() == Level.OVERWORLD) {
-+        if (fromLevel.dimension() == Level.END && toLevel.dimension() == io.canvasmc.canvas.Config.INSTANCE.fetchRespawnDimensionKey()) { // Canvas - default respawn dimension config
++        if (fromLevel.dimension() == Level.END && toLevel.dimension() == io.canvasmc.canvas.GlobalConfiguration.fetchRespawnDimensionKey()) { // Canvas - default respawn dimension config
              for (Entity entity : this.getPassengers()) {
                  if (entity instanceof ServerPlayer serverPlayer && !serverPlayer.seenCredits) {
                      return false;
