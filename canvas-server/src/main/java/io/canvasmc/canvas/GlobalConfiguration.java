@@ -104,28 +104,25 @@ public class GlobalConfiguration extends Part {
                 }
             },
             Style.create()
-                .literal("Global Configuration for CanvasMC").endLine()
+                .literal("CanvasMC 全局配置").endLine()
                 .blank()
                 .wordWrap(
-                    "This is the server-wide configuration file provided by CanvasMC. This config holds options",
-                    "that are set across the entire server, and cannot be overridden per-world. You are free to modify,",
-                    "add, or remove comments as you please."
+                    "这是 CanvasMC 提供的全局服务器配置文件。此配置中的选项作用于整个服务器，",
+                    "且无法按世界覆盖。你可以自由修改、添加或删除注释。"
                 ).endLine()
                 .blank()
                 .wordWrap(
-                    "You may refresh this configuration at runtime using the \"/canvas reload\" command, however",
-                    "it is not recommended to do this during production, as this can cause issues like unexpected crashes",
-                    "or unintended behavior."
+                    "你可以使用 \"/canvas reload\" 命令在运行时刷新此配置，但不建议在正式运行",
+                    "期间执行此操作，因为这可能导致意外崩溃或非预期行为。"
                 ).endLine()
                 .blank()
                 .wordWrap(
-                    "All defaults for the options provided in this configuration are configured for upstream",
-                    "compatibility over performance. You must do some manual configuration to get some of the performance",
-                    "benefits Canvas provides."
+                    "此配置中所有选项的默认值都是为了上游兼容性而非性能优化而设定的。",
+                    "你需要进行一些手动配置才能获得 Canvas 提供的部分性能提升。"
                 ).endLine()
                 .blank()
                 .wordWrap(
-                    "If you have questions about certain configuration options please reach out in our discord"
+                    "如果你对某些配置选项有疑问，请在我们的 Discord 中联系"
                 ).endLine()
                 .literal("https://canvasmc.io/discord")
                 .compile(60)
@@ -233,8 +230,8 @@ public class GlobalConfiguration extends Part {
         {
             option("affinityScheduler")
                 .docs(
-                    "Configurations for the AFFINITY scheduler provided by Canvas. For these options to take effect,",
-                    "change the \"threaded-regions.scheduler\" option in \"paper-global.yml\" to \"AFFINITY\""
+                    "Canvas 提供的 AFFINITY 调度器配置。要使这些选项生效，请将",
+                    "\"paper-global.yml\" 中的 \"threaded-regions.scheduler\" 选项更改为 \"AFFINITY\""
                 );
         }
 
@@ -245,36 +242,35 @@ public class GlobalConfiguration extends Part {
                 option("stealThresholdMillis")
                     .docs(
                         Style.wrap(
-                            "The maximum amount of time, in milliseconds, a thread will delay the execution of a scheduled task",
-                            "before allowing other threads to steal it for execution."
+                            "线程在允许其他线程窃取任务执行之前，延迟执行已调度任务的最大等待时间（毫秒）。"
                         )
                         .blank()
-                        .literal("Note: A smaller value reduces task deadline delays but increases potential task stealing between threads")
+                        .literal("注意：较小的值可减少任务截止延迟，但会增加线程间任务窃取的可能性")
                     ).greaterThanOrEqualTo(0.0F);
 
                 option("runTasksBufferMillis")
                     .docs(
                         Style.wrap(
-                            "Buffer time (in milliseconds) before tick deadline to stop executing intermediate tasks.",
-                            "Ensures runTick() can start on time, at the deadline."
+                            "在 tick 截止时间前停止执行中间任务的缓冲时间（毫秒）。",
+                            "确保 runTick() 能在截止时间准时开始执行。"
                         )
                         .blank()
-                        .literal("Default: 0.1ms, Higher is safer, lower means more work is done")
+                        .literal("默认值: 0.1ms，值越高越安全，值越低则完成更多工作")
                     ).greaterThanOrEqualTo(0.0F);
 
                 option("enableWorkStealing")
                     .docs(
-                        "Enables work stealing/task-thread affinity. This will try and attempt to keep tasks on the same tick thread",
-                        "to improve performance. If this is enabled, and the task misses its deadline by \"stealThresholdMillis\", it can",
-                        "be taken by another tick thread to be run."
+                        "启用工作窃取/任务线程亲和性。此选项会尝试将任务保持在同一线程上执行以提高性能。",
+                        "启用后，如果任务超过 \"stealThresholdMillis\" 所设定的截止时间，",
+                        "其他 tick 线程可以接管该任务执行。"
                     );
 
-                option("enableMidTickTasks").docs("Enables the affinity scheduler to run intermediate tasks while waiting for the deadline of the currently owned tick");
+                option("enableMidTickTasks").docs("启用亲和性调度器在等待当前 tick 截止时间期间执行中间任务");
                 option("tickRegionAffinity")
-                    .docs("Thread affinity for the AFFINITY scheduler provided by Canvas. By using this, you could pin the threads of region scheduler to cpu cores")
+                    .docs("Canvas 提供的 AFFINITY 调度器的线程亲和性。使用此选项可以将区域调度器的线程绑定到 CPU 核心")
                     .greaterThanOrEqualTo(0.0F);
 
-                option("enableAffinitySchedulerCpuAffinity").docs("Enables pinning threads of the AFFINITY region scheduler to cpu cores");
+                option("enableAffinitySchedulerCpuAffinity").docs("启用将 AFFINITY 区域调度器线程绑定到 CPU 核心");
             }
 
             public long stealThresholdMillis = AffinitySchedulerThreadPool.DEFAULT_STEAL_THRESH_MILLIS;
@@ -288,26 +284,25 @@ public class GlobalConfiguration extends Part {
         {
             option("overloadedLogMillis")
                 .docs(
-                    "Amount of time between the end and next start of a region tick where the server will log a",
-                    "warning that the scheduler is overloaded. Can help catch if you need to allocate more threads",
-                    "or help identify deadline missing issues"
+                    "区域 tick 结束到下次开始之间的时间间隔，超过此时长服务器将记录调度器过载的警告。",
+                    "这有助于判断是否需要分配更多线程，或帮助识别截止时间未达的问题"
                 ).greaterThan(0.0F);
 
             option("defaultTickRate")
                 .docs(
-                    "The default tick rate for the scheduler. Vanilla is 20, the game will run faster or slower depending on how you adjust this value.",
-                    "Note this should really only be used for debugging purposes and for custom environments that require this change"
+                    "调度器的默认 tick 速率。原版为 20，游戏运行速度会根据你调整的值变快或变慢。",
+                    "注意：此选项通常仅用于调试目的或需要此变更的自定义环境"
                 ).greaterThan(0.0F);
 
             option("guardSeverity")
                 .docs(
                     Style.wrap(
-                        "Canvas introduces extra tick thread checks to help catch plugin issues. This determines how aggressive the new guards are"
+                        "Canvas 引入了额外的 tick 线程检查来帮助发现插件问题。此选项决定新防护机制的严格程度"
                     ).defineEnum(GuardSeverity.class, (severity) -> {
                         return switch (severity) {
-                            case LOG -> "Just logs a warning in console, but continues the operation";
-                            case THROW -> "Throws an exception, can crash the server. Good for ensuring correctness";
-                            case SILENT -> "Doesn't say anything or do anything";
+                            case LOG -> "仅在控制台记录警告，但继续执行操作";
+                            case THROW -> "抛出异常，可能导致服务器崩溃。适合用于确保正确性";
+                            case SILENT -> "不输出任何信息也不执行任何操作";
                         };
                     })
                 );
@@ -332,28 +327,27 @@ public class GlobalConfiguration extends Part {
             option("fluidPostProcessingAlgorithm")
                 .docs(
                     Style.wrap(
-                        "The worldgen processes creates a lot of unnecessary fluid post-processing tasks,",
-                        "which can overload the server and cause stuttering when generating new chunks.",
-                        "Depending on the algorithm chosen, this can help reduce stutter and improve performance",
-                        "when generating chunks"
+                        "世界生成过程中会创建大量不必要的流体后处理任务，",
+                        "这可能导致服务器过载并在生成新区块时产生卡顿。",
+                        "根据所选算法，这可以帮助减少卡顿并提升区块生成时的性能"
                     ).defineEnum(FluidPostProcessingMode.class, (mode) -> {
                         return switch (mode) {
-                            case VANILLA -> "Normal post processing algorithm, everything is processed";
-                            case DISABLED -> "Disables fluid post processing entirely";
-                            case FILTERED -> "C2MEs algorithm to filter unnecessary post processing tasks";
+                            case VANILLA -> "正常后处理算法，处理所有内容";
+                            case DISABLED -> "完全禁用流体后处理";
+                            case FILTERED -> "C2ME 算法，过滤不必要的后处理任务";
                         };
                     })
                 );
 
             option("makeFluidPostProcessScheduledTick")
                 .docs(
-                    "Enabling this turns fluid post processing into a scheduled tick, which hopefully",
-                    "helps to mitigate MSPT spiking issues during chunk generation"
+                    "启用此选项会将流体后处理转为定时 tick，",
+                    "有助于缓解区块生成期间的 MSPT 尖刺问题"
                 );
             option("endBiomeCacheSize").greaterThan(0.0F);
             option("structureOptimizations").docs(
-                "These options are ported from the mod StructureLayoutOptimizer, https://modrinth.com/mod/structure-layout-optimizer",
-                "which optimizes the generation of Jigsaw Structures and NBT pieces"
+                "这些选项移植自模组 StructureLayoutOptimizer, https://modrinth.com/mod/structure-layout-optimizer",
+                "用于优化拼图结构和 NBT 片段的生成"
             );
         }
 
@@ -379,14 +373,14 @@ public class GlobalConfiguration extends Part {
             {
                 option("deduplicateShuffledTemplatePoolElementList").docs(
                     Style.wrap(
-                        "Whether to use an alternative strategy to make structure layouts generate slightly faster than",
-                        "the default optimization has for template pool weights. This alternative strategy works by",
-                        "changing the list of pieces that structures collect from the template pool to not have duplicate entries."
+                        "是否使用替代策略使结构布局生成比默认模板池权重优化更快。",
+                        "此替代策略通过将结构从模板池中收集的片段列表",
+                        "更改为不包含重复条目来实现。"
                     )
                     .blank()
                     .wordWrap(
-                        "By enabling this option you can get a bit more performance from high weight Template Pool Structures,",
-                        "but you lose parity with Vanilla seeds on the layout of the structure"
+                        "启用此选项可以从高权重模板池结构中获得额外性能提升，",
+                        "但会失去与原版种子在结构布局上的一致性"
                     )
                 );
             }
@@ -403,8 +397,8 @@ public class GlobalConfiguration extends Part {
         {
             option("pearlDuplication")
                 .docs(
-                    "There is a Vanilla bug where in-flight pearls are duplicated at shutdown. This fixes that when",
-                    "the option \"restoreVanillaEnderPearlBehavior\" is enabled alongside this."
+                    "原版存在一个 bug：飞行中的末影珍珠在服务器关闭时会被复制。",
+                    "当同时启用 \"restoreVanillaEnderPearlBehavior\" 选项时，此选项可修复该问题。"
                 );
         }
 
@@ -436,49 +430,49 @@ public class GlobalConfiguration extends Part {
         {
             option("filterVelocityPacket")
                 .docs(
-                    "The ClientboundSetEntityMotionPacket, also known as the entity velocity packet, can often",
-                    "consume major amounts of network usage, often being up to 60% on large production servers",
-                    "This option filters the unnecessary packets sent, while still maintaining Vanilla visual effects"
+                    "ClientboundSetEntityMotionPacket（实体速度包）通常会消耗大量网络带宽，",
+                    "在大型正式服务器上可高达 60%。此选项过滤不必要的数据包，",
+                    "同时保持原版视觉效果"
                 );
-            option("filterMovePackets").docs("Filters useless move packets that dont need to be sent");
+            option("filterMovePackets").docs("过滤不需要发送的无用移动数据包");
 
-            option("alternativePlayerListTick").docs("Splits players into buckets to be spread evenly across the playerlist tick");
+            option("alternativePlayerListTick").docs("将玩家分桶以在 playerlist tick 中均匀分布");
             option("playerInfoSendInterval")
                 .docs(
-                    "If alternative playerlist tick is enabled, this is the interval in ticks for how often",
-                    "each bucket will be ticked"
+                    "如果启用了替代 playerlist tick，此选项控制每个桶",
+                    "被 tick 的间隔（tick 数）"
                 ).greaterThan(0.0F);
             option("asyncProtocolSwitch")
                 .docs(
-                    "This makes protocol switching asynchronous during login, which reduces global region blocking",
-                    "and can improve login and configuration phase performance during player join"
+                    "使登录期间的协议切换变为异步，减少全局区域阻塞，",
+                    "可提升玩家加入时的登录和配置阶段性能"
                 );
 
             option("maximumPacketBytes")
                 .docs(
-                    "The maximum bytes that can be sent by the server in a single packet to a player before kicking them"
+                    "服务器向玩家发送单个数据包的最大字节数，超过此值将踢出玩家"
                 ).greaterThan(0.0F);
             option("disablePaperPacketOverflowContainerFix")
                 .docs(
-                    "This disables Papers overflow fallback for large container packets being sent to the client. This means",
-                    "that if the container data is too large, it will kick the player if they attempt to open a container",
-                    "with contents larger than the max packet byte size"
+                    "禁用 Paper 对发送到客户端的大型容器数据包的溢出回退机制。这意味着",
+                    "如果容器数据过大，玩家尝试打开内容超过最大数据包字节大小",
+                    "的容器时将被踢出"
                 );
             option("packetTooLargeDisconnectReason")
                 .docs(
-                    "The disconnect reason sent to the client when the server attempted to send a packet that",
-                    "exceeded the max packet size"
+                    "当服务器尝试发送超过最大数据包大小的数据包时，",
+                    "发送给客户端的断开连接原因"
                 );
 
             option("particleThrottling")
                 .docs(
-                    "Throttles particle packets sent to each player per tick. When enabled, particle packets",
-                    "beyond the configured limit per tick are silently dropped. Reduces network overhead on",
-                    "servers with heavy particle usage"
+                    "限制每 tick 向每个玩家发送的粒子数据包。启用后，超过",
+                    "每 tick 配置限制的粒子数据包将被静默丢弃。可减少",
+                    "粒子使用密集服务器的网络开销"
                 );
             option("particleThrottleLimit")
                 .docs(
-                    "Maximum particle packets allowed per player per tick when particle throttling is enabled"
+                    "启用粒子限流时，每个玩家每 tick 允许的最大粒子数据包数量"
                 ).greaterThan(0.0F);
         }
 
@@ -496,23 +490,23 @@ public class GlobalConfiguration extends Part {
     }
 
     {
-        option("serverModName").docs("The server mod name displayed in server listings and client info").word();
-        option("restoreVanillaEnderPearlBehavior").docs("Restores and fixes Vanilla Ender Pearl behavior, broken by Folia");
+        option("serverModName").docs("在服务器列表和客户端信息中显示的服务器 mod 名称").word();
+        option("restoreVanillaEnderPearlBehavior").docs("恢复并修复被 Folia 破坏的原版末影珍珠行为");
 
         option("displayWorldLoadScreenForPortaling")
             .docs(
-                "Folia's portaling rewrite makes the world loading screen not display on the client properly, and",
-                "instead shows an empty void. With this enabled, Canvas will display the proper world loading screen"
+                "Folia 的传送重写导致客户端无法正确显示世界加载画面，",
+                "而是显示空白虚空。启用此选项后，Canvas 将显示正确的世界加载画面"
             );
-        option("cacheMinecraft2BukkitEntityTypeConversion").docs("Whether to cache expensive CraftEntityType#minecraftToBukkit call");
-        option("tileEntitySnapshotCreation").docs("Enables creation of tile entity snapshots on retrieving blockstates");
+        option("cacheMinecraft2BukkitEntityTypeConversion").docs("是否缓存开销较大的 CraftEntityType#minecraftToBukkit 调用");
+        option("tileEntitySnapshotCreation").docs("启用在获取方块状态时创建方块实体快照");
 
         option("defaultRespawnDimensionKey")
             .docs(
-                "The default respawn dimension for the server. This can assist servers needing to change this to a",
-                "different world due to setup reasoning, like needing to send players to the \"spawn\" world or something.",
-                "This also applies to the end portal and nether portal, in replacement of the overworld, meaning the",
-                "target dimension for entities going from the nether for example will be sent here"
+                "服务器的默认重生维度。这可以帮助需要出于配置原因将重生维度更改为",
+                "不同世界的服务器，例如需要将玩家传送到 \"spawn\" 世界等场景。",
+                "此选项也适用于末地传送门和下界传送门，用以替代主世界，",
+                "例如从下界传送的实体的目标维度将被设定为此处"
             ).identifier(); // TODO - object mapping?
     }
 
@@ -531,12 +525,12 @@ public class GlobalConfiguration extends Part {
     public static class PurpurContainers extends Part {
 
         {
-            option("barrelRows").docs("The amount of rows for the barrel block").between(1, 6);
-            option("enderChestSixRows").docs("Whether to use 6 rows for the player ender chest, rather than the normal 3");
+            option("barrelRows").docs("桶方块的行数").between(1, 6);
+            option("enderChestSixRows").docs("是否为玩家末影箱使用 6 行，而非默认的 3 行");
             option("enderChestPermissionRows")
                 .docs(
-                    Style.wrap("Whether to use a permission based system for defining the size of ender chests per player")
-                        .literal("Valid permissions").endLine()
+                    Style.wrap("是否使用基于权限的系统来定义每个玩家末影箱的大小")
+                        .literal("可用权限").endLine()
                         .literal(" - purpur.enderchest.rows.six").endLine()
                         .literal(" - purpur.enderchest.rows.five").endLine()
                         .literal(" - purpur.enderchest.rows.four").endLine()
@@ -544,7 +538,7 @@ public class GlobalConfiguration extends Part {
                         .literal(" - purpur.enderchest.rows.two").endLine()
                         .literal(" - purpur.enderchest.rows.one").endLine()
                 );
-            option("enderChestPersistHiddenRows").docs("Whether items should remain stored in slots, even if those slots become inaccessible through permissions");
+            option("enderChestPersistHiddenRows").docs("即使某些槽位因权限限制变得不可访问，物品是否仍应保留在这些槽位中");
         }
 
         public int barrelRows = 3;
@@ -563,53 +557,53 @@ public class GlobalConfiguration extends Part {
         {
             option("skipEntityMoveIfMovementIsZero")
                 .docs(
-                    "When enabled, skips entity movement processing if the movement vector is zero",
-                    "and the bounding box has not changed. Can improve performance on servers with many entities."
+                    "启用后，当移动向量为零且碰撞箱未变化时跳过实体移动处理。",
+                    "可在拥有大量实体的服务器上提升性能。"
                 );
             option("skipNegligiblePlanarMovementMultiplication")
                 .docs(
-                    "When enabled, skips planar movement multiplication when the movement values are negligible",
-                    "and the block speed factor is effectively 1.0. Reduces unnecessary Vec3 allocations."
+                    "启用后，当移动值可忽略不计且方块速度因子实际为 1.0 时，",
+                    "跳过平面移动乘法运算。减少不必要的 Vec3 对象分配。"
                 );
             option("fasterChunkSerialization")
                 .docs(
-                    "Uses an optimized chunk serialization strategy based on Lithium's palette compaction.",
-                    "Reduces allocations and improves chunk save/network performance."
+                    "使用基于 Lithium 调色板压缩的优化区块序列化策略。",
+                    "减少对象分配，提升区块保存/网络传输性能。"
                 );
             option("equipmentTracking")
                 .docs(
-                    "Lithium-style equipment change tracking. Skips unnecessary enchantment ticking and",
-                    "equipment change detection for entities whose equipment has not changed."
+                    "Lithium 风格的装备变更追踪。跳过未变更装备的实体",
+                    "不必要的附魔 tick 和装备变更检测。"
                 );
             option("throttleInactiveGoalSelectorTick")
                 .docs(
-                    "Throttles mob AI goal selector ticking for entities in inactive chunks.",
-                    "Instead of ticking every inactive tick, the goal selector only ticks once every 20 inactive ticks.",
-                    "Ported from Pufferfish via Spring."
+                    "限制非活跃区块中实体的 AI 目标选择器 tick。",
+                    "目标选择器不再每个非活跃 tick 都执行，而是每 20 个非活跃 tick 才执行一次。",
+                    "移植自 Pufferfish，经 Spring 适配。"
                 );
             option("reduceEntityAllocations")
                 .docs(
-                    "Caches the lambda used in AttributeMap.getInstance to reduce object allocations.",
-                    "Java allocates a new lambda instance per call even when it captures the same fields.",
-                    "Ported from Pufferfish via Spring."
+                    "缓存 AttributeMap.getInstance 中使用的 lambda 以减少对象分配。",
+                    "Java 每次调用都会分配一个新的 lambda 实例，即使捕获的字段相同。",
+                    "移植自 Pufferfish，经 Spring 适配。"
                 );
             option("removeTickGuardLambda")
                 .docs(
-                    "Removes the lambda allocation in the entity tick guard by inlining the try-catch.",
-                    "Avoids allocating a method reference per entity tick.",
-                    "Ported from Pufferfish via Spring."
+                    "通过内联 try-catch 移除实体 tick 防护中的 lambda 分配。",
+                    "避免每次实体 tick 时分配一个方法引用。",
+                    "移植自 Pufferfish，经 Spring 适配。"
                 );
             option("cacheClimbingCheckForActivation")
                 .docs(
-                    "Caches the climbing check result per block position for entity activation range checks.",
-                    "Avoids recomputing the expensive onClimbable() check when position hasn't changed.",
-                    "Ported from Pufferfish via Spring."
+                    "为实体激活范围检查缓存每个方块位置的攀爬检查结果。",
+                    "避免在位置未变化时重新计算开销较大的 onClimbable() 检查。",
+                    "移植自 Pufferfish，经 Spring 适配。"
                 );
             option("optimizeSunBurnTick")
                 .docs(
-                    "Optimizes the sunburn tick check by caching the eye block position and reordering",
-                    "checks to bail out early before expensive operations.",
-                    "Ported from Gale via Spring."
+                    "通过缓存眼部方块位置和重排检查顺序来优化日晒 tick 检查，",
+                    "以便在执行高开销操作前尽早退出。",
+                    "移植自 Gale，经 Spring 适配。"
                 );
         }
 
@@ -628,12 +622,12 @@ public class GlobalConfiguration extends Part {
         option("regionFormat")
             .docs(
                 Style.wrap(
-                    "The region file format used for world storage. Linear format reduces disk usage by ~50%",
-                    "and improves chunk loading/saving speed. MCA is the standard Vanilla Anvil format."
+                    "用于世界存储的区域文件格式。Linear 格式可减少约 50% 的磁盘使用量",
+                    "并提升区块加载/保存速度。MCA 是标准的原版 Anvil 格式。"
                 ).defineEnum(io.canvasmc.canvas.region.EnumRegionFormat.class, (mode) -> {
                     return switch (mode) {
-                        case MCA -> "Standard Anvil format (Vanilla default)";
-                        case LINEAR_V2 -> "Linear v2 format - 50% less disk usage, faster I/O";
+                        case MCA -> "标准 Anvil 格式（原版默认）";
+                        case LINEAR_V2 -> "Linear v2 格式 - 磁盘使用减少 50%，更快的 I/O";
                     };
                 })
             );
@@ -645,8 +639,8 @@ public class GlobalConfiguration extends Part {
     public static class Chat extends Part {
 
         {
-            option("disableChatReporting").docs("Disables Minecraft chat signing to prevent player chat reporting");
-            option("disableChatVerificationOrder").docs("Disables Minecraft chat verification ordering");
+            option("disableChatReporting").docs("禁用 Minecraft 聊天签名以防止玩家聊天举报");
+            option("disableChatVerificationOrder").docs("禁用 Minecraft 聊天验证排序");
         }
 
         public boolean disableChatReporting = false;
