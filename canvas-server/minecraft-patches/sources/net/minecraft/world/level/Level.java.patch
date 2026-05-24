@@ -1,5 +1,23 @@
 --- a/net/minecraft/world/level/Level.java
 +++ b/net/minecraft/world/level/Level.java
+@@ -153,6 +_,17 @@
+         return this.paperConfig;
+     }
+     // Paper end - add paper world config
++    // Canvas start - world config
++    public io.canvasmc.canvas.WorldConfig canvasConfig;
++
++    public io.canvasmc.canvas.WorldConfig canvasConfig() {
++        return this.canvasConfig;
++    }
++
++    public void reloadCanvasConfig() {
++        this.canvasConfig = io.canvasmc.canvas.WorldConfig.buildForLevel((net.minecraft.server.level.ServerLevel) this, dimension);
++    }
++    // Canvas end - world config
+ 
+     public static @Nullable BlockPos lastPhysicsProblem; // Spigot
+     //private int tileTickPosition; // Folia - region threading
 @@ -203,7 +_,7 @@
  
      @Override
@@ -18,6 +36,14 @@
  
          ((ca.spottedleaf.moonrise.patches.chunk_system.level.ChunkSystemLevel)this).moonrise$getEntityLookup().getHardCollidingEntities(entity, box, ret, predicate);
  
+@@ -880,6 +_,7 @@
+         this.damageSources = new DamageSources(registryAccess);
+         this.entityLookup = new ca.spottedleaf.moonrise.patches.chunk_system.level.entity.dfl.DefaultEntityLookup(this); // Paper - rewrite chunk system
+         this.chunkPacketBlockController = this.paperConfig().anticheat.antiXray.enabled ? new io.papermc.paper.antixray.ChunkPacketBlockControllerAntiXray(this, executor) : io.papermc.paper.antixray.ChunkPacketBlockController.NO_OPERATION_INSTANCE; // Paper - Anti-Xray
++        reloadCanvasConfig(); // Canvas - world config
+     }
+ 
+     // Paper start - Cancel hit for vanished players
 @@ -1437,24 +_,35 @@
          // Spigot start
          boolean runsNormally = regionizedWorldData.regionData.tickHandle.getTickManager().doesRunGameElements(); // Canvas - region threading
@@ -68,7 +94,7 @@
  
          regionizedWorldData.seTtickingBlockEntities(false); // Folia - regionised ticking
          regionizedWorldData.currentPrimedTnt = 0; // Spigot // Folia - region threading
-@@ -1463,6 +_,26 @@
+@@ -1463,7 +_,46 @@
      public <T extends Entity> void guardEntityTick(Consumer<T> action, T entity) {
          try {
              action.accept(entity);
@@ -92,9 +118,37 @@
 +                1L
 +            );
 +        // Canvas end - reroute cross-region movement after tick unwind
++        // Leaves start - update suppression crash fix
++        } catch (io.canvasmc.canvas.util.UpdateSuppressionException exception) {
++            if (io.canvasmc.canvas.GlobalConfiguration.getInstance().vanillaFixes.updateSuppressionCrashFix) {
++                exception.provideLevel(this);
++                exception.consume();
++            } else {
++                throw exception;
++            }
++        // Leaves end - update suppression crash fix
          } catch (Throwable var6) {
++            // Leaves start - update suppression crash fix
++            if (var6.getCause() instanceof io.canvasmc.canvas.util.UpdateSuppressionException exception) {
++                if (io.canvasmc.canvas.GlobalConfiguration.getInstance().vanillaFixes.updateSuppressionCrashFix) {
++                    exception.provideLevel(this);
++                    exception.consume();
++                } else {
++                    throw var6;
++                }
++            } else {
++            // Leaves end - update suppression crash fix
              // Paper start - Prevent block entity and entity crashes
              final String msg = String.format("Entity threw exception at %s:%s,%s,%s", entity.level().getWorld().getName(), entity.getX(), entity.getY(), entity.getZ());
+             MinecraftServer.LOGGER.error(msg, var6);
+@@ -1471,6 +_,7 @@
+             if (!(entity instanceof net.minecraft.server.level.ServerPlayer)) entity.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DISCARD); // Folia - properly disconnect players
+             if (entity instanceof net.minecraft.server.level.ServerPlayer player) player.connection.disconnect(net.minecraft.network.chat.Component.translatable("multiplayer.disconnect.generic"), org.bukkit.event.player.PlayerKickEvent.Cause.UNKNOWN); // Folia - properly disconnect players
+             // Paper end - Prevent block entity and entity crashes
++            } // Leaves - update suppression crash fix
+         }
+         this.moonrise$midTickTasks(); // Paper - rewrite chunk system
+     }
 @@ -1855,6 +_,35 @@
      public List<Entity> getPushableEntities(Entity entity, AABB boundingBox) {
          return this.getEntities(entity, boundingBox, EntitySelector.pushableBy(entity));
@@ -103,7 +157,7 @@
 +
 +    public it.unimi.dsi.fastutil.objects.ObjectArrayList<net.minecraft.server.level.ServerPlayer> canvas$getIntersectingPlayers(Entity calling, AABB boundingBox, Predicate<Entity> predicate) {
 +        final ca.spottedleaf.moonrise.common.list.ReferenceList<net.minecraft.server.level.ServerPlayer> players = ((ca.spottedleaf.moonrise.patches.chunk_system.level.ChunkSystemServerLevel) this).moonrise$getNearbyPlayers().getPlayers(
-+            calling.blockPosition, io.canvasmc.canvas.Config.INSTANCE.entityCollisionMode.isLargePushRange() ?
++            calling.blockPosition, io.canvasmc.canvas.WorldConfig.getDefaults().entities.entityCollisionMode.isLargePushRange() ?
 +                ca.spottedleaf.moonrise.common.misc.NearbyPlayers.NearbyMapType.SPAWN_RANGE :
 +                ca.spottedleaf.moonrise.common.misc.NearbyPlayers.NearbyMapType.GENERAL_REALLY_REALLY_SMALL
 +        );

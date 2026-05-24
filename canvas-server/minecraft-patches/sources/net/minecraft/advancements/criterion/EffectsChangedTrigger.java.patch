@@ -1,0 +1,11 @@
+--- a/net/minecraft/advancements/criterion/EffectsChangedTrigger.java
++++ b/net/minecraft/advancements/criterion/EffectsChangedTrigger.java
+@@ -18,7 +_,7 @@
+     }
+ 
+     public void trigger(ServerPlayer player, @Nullable Entity source) {
+-        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
+         LootContext lootContext = source != null ? EntityPredicate.createContext(player, source) : null;
+         this.trigger(player, instance -> instance.matches(player, lootContext));
+     }

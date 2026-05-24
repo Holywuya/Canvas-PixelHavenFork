@@ -14,6 +14,51 @@
      }
  
      // Folia start - region threading
+@@ -932,7 +_,43 @@
+                                         entity.stopRiding();
+                                     }
+ 
+-                                    this.guardEntityTick(this::tickNonPassenger, entity);
++                                    // Canvas start - inline guardEntityTick to avoid lambda allocation
++                                    if (io.canvasmc.canvas.GlobalConfiguration.getInstance().performance.removeTickGuardLambda) {
++                                        try {
++                                            this.tickNonPassenger(entity);
++                                        } catch (io.canvasmc.canvas.world.entity.EntityMoveOutOfRegionException moveOutOfRegionException) {
++                                            final net.minecraft.world.entity.Entity movingEntity = moveOutOfRegionException.entity();
++                                            final net.minecraft.world.phys.Vec3 currentPosition = movingEntity.position();
++                                            final net.minecraft.world.phys.Vec3 destinationPosition = currentPosition.add(moveOutOfRegionException.movement());
++                                            movingEntity.getBukkitEntity().taskScheduler.schedule(
++                                                entityFresh -> entityFresh.teleportAsync(
++                                                    (net.minecraft.server.level.ServerLevel)entityFresh.level(),
++                                                    destinationPosition,
++                                                    entityFresh.getYRot(),
++                                                    entityFresh.getXRot(),
++                                                    entityFresh.getDeltaMovement(),
++                                                    org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.UNKNOWN,
++                                                    net.minecraft.world.entity.Entity.TELEPORT_FLAG_LOAD_CHUNK,
++                                                    null
++                                                ),
++                                                null,
++                                                1L
++                                            );
++                                        } catch (Throwable throwable) {
++                                            if (throwable instanceof ThreadDeath) throw throwable; // Paper
++                                            // Paper start - Prevent block entity and entity crashes
++                                            final String msg = String.format("Entity threw exception at %s:%s,%s,%s", entity.level().getWorld().getName(), entity.getX(), entity.getY(), entity.getZ());
++                                            MinecraftServer.LOGGER.error(msg, throwable);
++                                            getCraftServer().getPluginManager().callEvent(new com.destroystokyo.paper.event.server.ServerExceptionEvent(new com.destroystokyo.paper.exception.ServerInternalException(msg, throwable))); // Paper - ServerExceptionEvent
++                                            if (!(entity instanceof net.minecraft.server.level.ServerPlayer)) entity.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DISCARD); // Folia - properly disconnect players
++                                            if (entity instanceof net.minecraft.server.level.ServerPlayer player) player.connection.disconnect(net.minecraft.network.chat.Component.translatable("multiplayer.disconnect.generic"), org.bukkit.event.player.PlayerKickEvent.Cause.UNKNOWN); // Folia - properly disconnect players
++                                            // Paper end - Prevent block entity and entity crashes
++                                        }
++                                        this.moonrise$midTickTasks(); // Paper - rewrite chunk system
++                                    } else {
++                                        this.guardEntityTick(this::tickNonPassenger, entity);
++                                    }
++                                    // Canvas end - inline guardEntityTick to avoid lambda allocation
+                                 }
+                             }
+                         }
 @@ -1035,71 +_,73 @@
      // Paper start - optimise random ticking
      private final io.papermc.paper.threadedregions.util.SimpleThreadLocalRandomSource simpleRandom = io.papermc.paper.threadedregions.util.SimpleThreadLocalRandomSource.INSTANCE; // Folia - region threading
@@ -159,6 +204,15 @@
              }
          }
      }
+@@ -1729,7 +_,7 @@
+ 
+     // CraftBukkit start
+     private boolean addEntity(Entity entity, org.bukkit.event.entity.CreatureSpawnEvent.@Nullable SpawnReason spawnReason) {
+-        org.spigotmc.AsyncCatcher.catchOp("entity add"); // Spigot
++        io.canvasmc.canvas.util.TickGuard.guard(entity, "Cannot add entity async"); // Canvas - region guards
+         entity.generation = false; // Paper - Don't fire sync event during generation; Reset flag if it was added during a ServerLevel generation process
+         // Paper start - extra debug info
+         if (entity.valid) {
 @@ -1776,7 +_,7 @@
  
      public void unload(LevelChunk chunk) {

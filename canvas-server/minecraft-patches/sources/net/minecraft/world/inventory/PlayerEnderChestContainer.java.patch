@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/inventory/PlayerEnderChestContainer.java
++++ b/net/minecraft/world/inventory/PlayerEnderChestContainer.java
+@@ -26,7 +_,7 @@
+     }
+ 
+     public PlayerEnderChestContainer(Player owner) {
+-        super(io.canvasmc.canvas.Config.INSTANCE.containers.enderChestSixRows ? 54 : 27); // Purpur - Barrels and enderchests 6 rows
++        super(io.canvasmc.canvas.GlobalConfiguration.getInstance().purpurContainers.enderChestSixRows ? 54 : 27); // Purpur - Barrels and enderchests 6 rows
+         this.owner = owner;
+         // CraftBukkit end
+     }

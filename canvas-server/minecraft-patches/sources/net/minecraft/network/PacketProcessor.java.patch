@@ -1,0 +1,23 @@
+--- a/net/minecraft/network/PacketProcessor.java
++++ b/net/minecraft/network/PacketProcessor.java
+@@ -84,7 +_,20 @@
+             if (this.listener.shouldHandleMessage(this.packet)) {
+                 try {
+                     this.packet.handle(this.listener);
++                    // Leaves start - update suppression crash fix
++                } catch (io.canvasmc.canvas.util.UpdateSuppressionException exception) {
++                    if (this.listener instanceof net.minecraft.server.network.ServerGamePacketListenerImpl gamePacketListener) {
++                        exception.providePlayer(gamePacketListener.player);
++                    }
++                    exception.consume();
+                 } catch (Exception var3) {
++                    if (var3.getCause() instanceof io.canvasmc.canvas.util.UpdateSuppressionException exception) {
++                        if (this.listener instanceof net.minecraft.server.network.ServerGamePacketListenerImpl gamePacketListener) {
++                            exception.providePlayer(gamePacketListener.player);
++                        }
++                        exception.consume();
++                    }
++                    // Leaves end - update suppression crash fix
+                     if (var3 instanceof ReportedException reportedException && reportedException.getCause() instanceof OutOfMemoryError) {
+                         throw PacketUtils.makeReportedException(var3, this.packet, this.listener);
+                     }

@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/entity/item/FallingBlockEntity.java
++++ b/net/minecraft/world/entity/item/FallingBlockEntity.java
+@@ -384,7 +_,7 @@
+         ResourceKey<Level> resourceKey1 = this.level().dimension();
+         boolean flag = (resourceKey1 == Level.END || resourceKey == Level.END) && resourceKey1 != resourceKey;
+         Entity entity = super.teleport(teleportTransition);
+-        this.forceTickAfterTeleportToDuplicate = entity != null && flag && io.papermc.paper.configuration.GlobalConfiguration.get().unsupportedSettings.allowUnsafeEndPortalTeleportation; // Paper
++        this.forceTickAfterTeleportToDuplicate = entity != null && flag; // Paper // Leaves - fix duplicate
+         return entity;
+     }
+ }

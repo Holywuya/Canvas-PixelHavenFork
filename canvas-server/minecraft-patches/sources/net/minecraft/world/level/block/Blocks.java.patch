@@ -5,7 +5,7 @@
  
      private static Block register(String name, BlockBehaviour.Properties properties) {
 +        // Canvas start - MC-223153
-+        if (io.canvasmc.canvas.Config.INSTANCE.fixes.mc223153 && name.equalsIgnoreCase("raw_copper_block")) {
++        if (io.canvasmc.canvas.GlobalConfiguration.getInstance().vanillaFixes.mc223153 && name.equalsIgnoreCase("raw_copper_block")) {
 +            properties = properties.sound(SoundType.COPPER);
 +        }
 +        // Canvas end - MC-223153

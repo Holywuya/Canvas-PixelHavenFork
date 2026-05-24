@@ -1,0 +1,11 @@
+--- a/net/minecraft/advancements/criterion/DistanceTrigger.java
++++ b/net/minecraft/advancements/criterion/DistanceTrigger.java
+@@ -16,7 +_,7 @@
+     }
+ 
+     public void trigger(ServerPlayer player, Vec3 position) {
+-        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
+         Vec3 vec3 = player.position();
+         this.trigger(player, instance -> instance.matches(player.level(), position, vec3));
+     }

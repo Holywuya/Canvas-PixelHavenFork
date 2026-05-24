@@ -5,7 +5,7 @@
          int i1 = Mth.floorDiv(noiseSettings.height(), noiseSettings.getCellHeight());
          return i1 <= 0 ? CompletableFuture.completedFuture(chunk) : CompletableFuture.supplyAsync(() -> {
 +            // Canvas start - optimize noise gen
-+            if (io.canvasmc.canvas.Config.INSTANCE.chunks.optimizeNoiseGeneration) {
++            if (io.canvasmc.canvas.GlobalConfiguration.getInstance().chunkSystem.optimizeNoiseGeneration) {
 +                // remove the rest of this bs, we don't need it
 +                @Nullable ChunkAccess chunkWithNoise = this.doFill(
 +                    blender, structureManager, randomState, chunk, i, i1);
@@ -22,7 +22,7 @@
                                  if (interpolatedState != AIR && !SharedConstants.debugVoidTerrain(chunk.getPos())) {
 -                                    section.setBlockState(i11, i8, i14, interpolatedState, false);
 +                                    // Canvas start - optimize noise gen
-+                                    if (io.canvasmc.canvas.Config.INSTANCE.chunks.optimizeNoiseGeneration && section.states.strategy != null) {
++                                    if (io.canvasmc.canvas.GlobalConfiguration.getInstance().chunkSystem.optimizeNoiseGeneration && section.states.strategy != null) {
 +                                        canvas$populateNoiseWrapSetBlockStateOperation(section, i11, i8, i14, interpolatedState, false);
 +                                    } else section.setBlockState(i11, i8, i14, interpolatedState, false);
 +                                    // Canvas end - optimize noise gen

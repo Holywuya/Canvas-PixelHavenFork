@@ -32,8 +32,8 @@
 +        if (previousX != newX || previousZ != newZ) {
 +            boolean isLoaded = ((net.minecraft.server.level.ServerChunkCache) this.level().getChunkSource()).getChunkAtIfLoadedImmediately(newX, newZ) != null;
 +            if (!isLoaded) {
-+                if (currWorldData.canvas$loadedThisTick > io.canvasmc.canvas.Config.INSTANCE.projectiles.maxProjectileLoadsPerTick) { // Canvas - region threading
-+                    if (++this.loadedLifetime > io.canvasmc.canvas.Config.INSTANCE.projectiles.maxProjectileLoadsPerProjectile) {
++                if (currWorldData.canvas$loadedThisTick > io.canvasmc.canvas.WorldConfig.getDefaults().entities.projectiles.maxProjectileChunkLoadsPerTick) { // Canvas - region threading
++                    if (++this.loadedLifetime > io.canvasmc.canvas.WorldConfig.getDefaults().entities.projectiles.maxProjectileChunkLoadsPerProjectileBeforeRemoval) {
 +                        this.discard();
 +                    }
 +                    return;
@@ -79,7 +79,7 @@
              if (entity.getType().is(EntityTypeTags.REDIRECTABLE_PROJECTILE) && entity instanceof Projectile projectile) {
 -                projectile.deflect(ProjectileDeflection.AIM_DEFLECT, this.getOwner(), this.owner, true);
 +                // Canvas start - configurable cross-region redirect deflection
-+                Entity owner = io.canvasmc.canvas.Config.INSTANCE.projectiles.crossRegionRedirectableProjectileDeflection ? this.getOwnerRaw() : this.getOwner();
++                Entity owner = io.canvasmc.canvas.WorldConfig.getDefaults().entities.projectiles.crossRegionRedirectableProjectileDeflection ? this.getOwnerRaw() : this.getOwner();
 +                projectile.deflect(ProjectileDeflection.AIM_DEFLECT, owner, this.owner, true);
 +                // Canvas end - configurable cross-region redirect deflection
              }

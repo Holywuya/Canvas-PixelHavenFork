@@ -1,0 +1,16 @@
+--- a/net/minecraft/world/entity/vehicle/minecart/MinecartHopper.java
++++ b/net/minecraft/world/entity/vehicle/minecart/MinecartHopper.java
+@@ -102,6 +_,13 @@
+         }
+     }
+ 
++    // Leaves start - tick every
++    @Override
++    public void inactiveTick() {
++        this.tick();
++    }
++    // Leaves end - tick every
++
+     public boolean suckInItems() {
+         if (HopperBlockEntity.suckInItems(this.level(), this)) {
+             this.immunize(); // Paper

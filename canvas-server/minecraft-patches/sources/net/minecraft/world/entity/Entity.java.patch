@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -260,6 +_,10 @@
+@@ -260,9 +_,14 @@
      private Vec3 deltaMovement = Vec3.ZERO;
      private float yRot;
      private float xRot;
@@ -11,6 +11,10 @@
      public float yRotO;
      public float xRotO;
      private AABB bb = INITIAL_AABB;
++    private boolean boundingBoxChanged = false; // Canvas - skip entity move if movement is zero
+     public boolean onGround;
+     public boolean horizontalCollision;
+     public boolean verticalCollision;
 @@ -285,9 +_,14 @@
      public int tickCount;
      private int remainingFireTicks;
@@ -33,7 +37,7 @@
  
          //if (this instanceof ServerPlayer) this.handlePortal(); // CraftBukkit - Moved up to postTick // Folia - region threading - ONLY allow in postTick()
 -        if (this.canSpawnSprintParticle()) {
-+        if (!io.canvasmc.canvas.Config.INSTANCE.particles.disableSprintParticles && this.canSpawnSprintParticle()) { // Canvas - particles config
++        if (!io.canvasmc.canvas.WorldConfig.getDefaults().visuals.particles.disableSprintParticles && this.canSpawnSprintParticle()) { // Canvas - particles config
              this.spawnSprintParticle();
          }
  
@@ -44,8 +48,8 @@
 +            // Canvas start - hide flames on entities with fire resistance or invis
 +            if (this instanceof net.minecraft.world.entity.LivingEntity livingEntity) {
 +                this.setSharedFlagOnFire(this.remainingFireTicks > 0 &&
-+                    (!io.canvasmc.canvas.Config.INSTANCE.networking.hideFlamesOnEntitiesWithFireResistance || !livingEntity.hasEffect(net.minecraft.world.effect.MobEffects.FIRE_RESISTANCE)) &&
-+                    (!io.canvasmc.canvas.Config.INSTANCE.networking.hideFlamesOnEntitiesWithInvisibility || !livingEntity.isInvisible())
++                    (!io.canvasmc.canvas.WorldConfig.getDefaults().visuals.hideFlamesOnEntitiesWithFireResistance || !livingEntity.hasEffect(net.minecraft.world.effect.MobEffects.FIRE_RESISTANCE)) &&
++                    (!io.canvasmc.canvas.WorldConfig.getDefaults().visuals.hideFlamesOnEntitiesWithInvisibility || !livingEntity.isInvisible())
 +                );
 +            } else {
 +            // Canvas end - hide flames on entities with fire resistance or invis
@@ -54,7 +58,17 @@
          }
  
          this.firstTick = false;
-@@ -1128,6 +_,17 @@
+@@ -1125,9 +_,27 @@
+     }
+ 
+     public void move(MoverType type, Vec3 movement) {
++        // Canvas start - skip entity move if movement is zero
++        if (io.canvasmc.canvas.GlobalConfiguration.getInstance().performance.skipEntityMoveIfMovementIsZero) {
++            if (!this.boundingBoxChanged && movement.equals(Vec3.ZERO)) {
++                return;
++            }
++        }
++        // Canvas end - skip entity move if movement is zero
          final Vec3 originalMovement = movement; // Paper - Expose pre-collision velocity
          ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread("Cannot move an entity off-main"); // Folia - region threading
          if (this.noPhysics) {
@@ -91,6 +105,47 @@
                  this.addMovementThisTick(new Entity.Movement(vec32, vec33, movement));
                  this.setPos(vec33);
              }
+@@ -1243,8 +_,17 @@
+                     }
+                 }
+ 
+-                float blockSpeedFactor = this.getBlockSpeedFactor();
+-                this.setDeltaMovement(this.getDeltaMovement().multiply(blockSpeedFactor, 1.0, blockSpeedFactor));
++                // Canvas start - skip negligible planar movement multiplication
++                Vec3 oldDeltaMovement = this.getDeltaMovement();
++                if (!io.canvasmc.canvas.GlobalConfiguration.getInstance().performance.skipNegligiblePlanarMovementMultiplication ||
++                        (oldDeltaMovement.x < -1e-6 || oldDeltaMovement.x > 1e-6 || oldDeltaMovement.z < -1e-6 || oldDeltaMovement.z > 1e-6)) {
++                    float blockSpeedFactor = this.getBlockSpeedFactor();
++                    if (!io.canvasmc.canvas.GlobalConfiguration.getInstance().performance.skipNegligiblePlanarMovementMultiplication ||
++                            (blockSpeedFactor < 1 - 1e-6 || blockSpeedFactor > 1 + 1e-6)) {
++                        this.setDeltaMovement(this.getDeltaMovement().multiply(blockSpeedFactor, 1.0, blockSpeedFactor));
++                    }
++                }
++                // Canvas end - skip negligible planar movement multiplication
+                 if (this.vehicle == null && type != MoverType.PLAYER) this.repositionAllPassengers(false); // Paper
+             }
+         }
+@@ -1371,9 +_,19 @@
+                     this.walkingStepSound(pos, state);
+                 }
+ 
++                // Leaves start - update suppression crash fix
+                 if (broadcastGameEvent) {
+-                    this.level().gameEvent(GameEvent.STEP, this.position(), GameEvent.Context.of(this, state));
++                    try {
++                        this.level().gameEvent(GameEvent.STEP, this.position(), GameEvent.Context.of(this, state));
++                    } catch (io.canvasmc.canvas.util.UpdateSuppressionException exception) {
++                        exception.provideBlock(level, pos, state.getBlock());
++                        if (this instanceof net.minecraft.server.level.ServerPlayer player) {
++                            exception.providePlayer(player);
++                        }
++                        exception.consume();
++                    }
+                 }
++                // Leaves end - update suppression crash fix
+ 
+                 return true;
+             } else {
 @@ -1703,6 +_,11 @@
          boolean flag1 = this.level instanceof ServerLevel serverLevel
              && serverLevel.getServer().debugSubscribers().hasAnySubscriberFor(DebugSubscriptions.ENTITY_BLOCK_INTERSECTIONS);
@@ -207,7 +262,7 @@
  
          float f1 = Mth.floor(this.getY());
  
-+        if (!io.canvasmc.canvas.Config.INSTANCE.particles.disableWaterSplashParticles) { // Canvas - particles config
++        if (!io.canvasmc.canvas.WorldConfig.getDefaults().visuals.particles.disableWaterSplashParticles) { // Canvas - particles config
          for (int i = 0; i < 1.0F + this.dimensions.width() * 20.0F; i++) {
              double d = (this.random.nextDouble() * 2.0 - 1.0) * this.dimensions.width();
              double d1 = (this.random.nextDouble() * 2.0 - 1.0) * this.dimensions.width();
@@ -261,6 +316,35 @@
      }
  
      public void moveRelative(float amount, Vec3 relative) {
+@@ -2170,10 +_,24 @@
+ 
+     @Deprecated
+     public float getLightLevelDependentMagicValue() {
+-        return this.level().hasChunkAt(this.getBlockX(), this.getBlockZ())
+-            ? this.level().getLightLevelDependentMagicValue(BlockPos.containing(this.getX(), this.getEyeY(), this.getZ()))
+-            : 0.0F;
+-    }
++        // Canvas start - optimize sun burn tick
++        if (!io.canvasmc.canvas.GlobalConfiguration.getInstance().performance.optimizeSunBurnTick) {
++            return this.level().hasChunkAt(this.getBlockX(), this.getBlockZ())
++                ? this.level().getLightLevelDependentMagicValue(BlockPos.containing(this.getX(), this.getEyeY(), this.getZ()))
++                : 0.0F;
++        } else {
++            return this.getLightLevelDependentMagicValue(BlockPos.containing(this.getX(), this.getEyeY(), this.getZ()));
++        }
++        // Canvas end - optimize sun burn tick
++    }
++
++    // Canvas start - optimize sun burn tick
++    /** @deprecated */
++    @Deprecated
++    public float getLightLevelDependentMagicValue(BlockPos pos) {
++        return this.level().hasChunkAt(this.getBlockX(), this.getBlockZ()) ? this.level.getLightLevelDependentMagicValue(pos) : 0.0F;
++    }
++    // Canvas end - optimize sun burn tick
+ 
+     public void absSnapTo(double x, double y, double z, float yRot, float xRot) {
+         this.absSnapTo(x, y, z);
 @@ -2285,8 +_,8 @@
      }
  
@@ -291,7 +375,7 @@
      }
  
      protected static void sendBubbleColumnParticles(Level level, BlockPos pos) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.particles.disableBubbleColumnParticles) return; // Canvas - particles config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().visuals.particles.disableBubbleColumnParticles) return; // Canvas - particles config
          if (level instanceof ServerLevel serverLevel) {
              for (int i = 0; i < 2; i++) {
                  serverLevel.sendParticles(
@@ -300,7 +384,7 @@
          ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this, "Cannot portal entity async");
  
 -        ServerLevel destination = this.level().getServer().getLevel(this.level().getTypeKey() == net.minecraft.world.level.dimension.LevelStem.END ? Level.OVERWORLD : Level.END);
-+        ServerLevel destination = this.level().getServer().getLevel(this.level().getTypeKey() == net.minecraft.world.level.dimension.LevelStem.END ? io.canvasmc.canvas.Config.INSTANCE.fetchRespawnDimensionKey() : Level.END); // Canvas - default respawn dimension config
++        ServerLevel destination = this.level().getServer().getLevel(this.level().getTypeKey() == net.minecraft.world.level.dimension.LevelStem.END ? io.canvasmc.canvas.GlobalConfiguration.fetchRespawnDimensionKey() : Level.END); // Canvas - default respawn dimension config
          if (destination == null) {
              // wat
              return false;
@@ -309,7 +393,7 @@
          ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this, "Cannot portal entity async");
  
 -        ServerLevel destination = this.level().getServer().getLevel(this.level().getTypeKey() == net.minecraft.world.level.dimension.LevelStem.NETHER ? Level.OVERWORLD : Level.NETHER);
-+        ServerLevel destination = this.level().getServer().getLevel(this.level().getTypeKey() == net.minecraft.world.level.dimension.LevelStem.NETHER ? io.canvasmc.canvas.Config.INSTANCE.fetchRespawnDimensionKey() : Level.NETHER); // Canvas - default respawn dimension config
++        ServerLevel destination = this.level().getServer().getLevel(this.level().getTypeKey() == net.minecraft.world.level.dimension.LevelStem.NETHER ? io.canvasmc.canvas.GlobalConfiguration.fetchRespawnDimensionKey() : Level.NETHER); // Canvas - default respawn dimension config
          if (destination == null) {
              // wat
              return false;
@@ -318,7 +402,7 @@
              // set portal cooldown
              node.root.setPortalCooldown();
 +            // Canvas start - region threading
-+            if (io.canvasmc.canvas.Config.INSTANCE.displayWorldLoadScreenForPortaling && node.root instanceof ServerPlayer player) {
++            if (io.canvasmc.canvas.GlobalConfiguration.getInstance().displayWorldLoadScreenForPortaling && node.root instanceof ServerPlayer player) {
 +                player.connection.send(new net.minecraft.network.protocol.game.ClientboundRespawnPacket(
 +                    player.createCommonSpawnInfo(destination),
 +                    net.minecraft.network.protocol.game.ClientboundRespawnPacket.KEEP_ALL_DATA
@@ -328,15 +412,53 @@
          }
  
          // ensure the region is always ticking in case of a shutdown
+@@ -4989,19 +_,21 @@
+                 );
+                 event.callEvent();
+ 
++                // Leaves start - fix EntityPortalExitEvent
+                 // Only change the target if actually needed, since we reset relative flags
+-                if (event.isCancelled() || !to.equals(event.getTo()) || !after.equals(event.getAfter())) {
+-                    if (event.isCancelled() || event.getTo() == null) {
+-                        org.bukkit.World toWorld = to.getWorld();
+-                        to = event.getFrom().clone();
+-                        to.setWorld(toWorld); // cancelling doesn't cancel the teleport just the position/velocity (old quirk)
+-                        velocity = org.bukkit.craftbukkit.util.CraftVector.toVec3(event.getBefore());
+-                    } else {
+-                        to = event.getTo().clone();
++                if (event.isCancelled() || (!to.equals(event.getTo()) || !after.equals(event.getAfter()))) {
++                    if (!event.isCancelled()) {
++                        if (event.getTo() != null) {
++                            to = event.getTo().clone();
++                        }
+                         velocity = org.bukkit.craftbukkit.util.CraftVector.toVec3(event.getAfter());
++                    } else {
++                        to = event.getFrom().clone();
++                        velocity = Vec3.ZERO;
+                     }
+                     teleportTransition = new TeleportTransition(((org.bukkit.craftbukkit.CraftWorld) to.getWorld()).getHandle(), org.bukkit.craftbukkit.util.CraftLocation.toVec3(to), velocity, to.getYaw(), to.getPitch(), teleportTransition.missingRespawnBlock(), teleportTransition.asPassenger(), Set.of(), teleportTransition.postTeleportTransition(), teleportTransition.cause());
+                 }
++                // Leaves end - fix EntityPortalExitEvent
+             }
+             if (this.isRemoved()) {
+                 return null;
 @@ -5181,7 +_,7 @@
  
      public boolean canTeleport(Level fromLevel, Level toLevel) {
          if (!this.isAlive() || !this.valid) return false; // Paper - Fix item duplication and teleport issues
 -        if (fromLevel.dimension() == Level.END && toLevel.dimension() == Level.OVERWORLD) {
-+        if (fromLevel.dimension() == Level.END && toLevel.dimension() == io.canvasmc.canvas.Config.INSTANCE.fetchRespawnDimensionKey()) { // Canvas - default respawn dimension config
++        if (fromLevel.dimension() == Level.END && toLevel.dimension() == io.canvasmc.canvas.GlobalConfiguration.fetchRespawnDimensionKey()) { // Canvas - default respawn dimension config
              for (Entity entity : this.getPassengers()) {
                  if (entity instanceof ServerPlayer serverPlayer && !serverPlayer.seenCredits) {
                      return false;
+@@ -5408,6 +_,7 @@
+     }
+ 
+     public final void setBoundingBox(AABB bb) {
++        if (!this.bb.equals(bb)) this.boundingBoxChanged = true; // Canvas - skip entity move if movement is zero
+         // CraftBukkit start - block invalid bounding boxes
+         double minX = bb.minX,
+                 minY = bb.minY,
 @@ -5709,9 +_,7 @@
  
      // Paper start - optimise collisions

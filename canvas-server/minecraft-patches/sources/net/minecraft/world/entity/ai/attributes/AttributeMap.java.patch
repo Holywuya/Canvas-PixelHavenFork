@@ -1,0 +1,29 @@
+--- a/net/minecraft/world/entity/ai/attributes/AttributeMap.java
++++ b/net/minecraft/world/entity/ai/attributes/AttributeMap.java
+@@ -18,9 +_,11 @@
+     private final Set<AttributeInstance> attributesToSync = new ObjectOpenHashSet<>();
+     private final Set<AttributeInstance> attributesToUpdate = new ObjectOpenHashSet<>();
+     private final AttributeSupplier supplier;
++    private final java.util.function.Function<Holder<Attribute>, AttributeInstance> createInstance; // Canvas - reduce entity allocations
+ 
+     public AttributeMap(AttributeSupplier supplier) {
+         this.supplier = supplier;
++        this.createInstance = attribute -> this.supplier.createInstance(this::onAttributeModified, attribute); // Canvas - reduce entity allocations
+     }
+ 
+     private void onAttributeModified(AttributeInstance instance) {
+@@ -43,7 +_,13 @@
+     }
+ 
+     public @Nullable AttributeInstance getInstance(Holder<Attribute> attribute) {
+-        return this.attributes.computeIfAbsent(attribute, holder -> this.supplier.createInstance(this::onAttributeModified, (Holder<Attribute>)holder));
++        // Canvas start - cache lambda to reduce entity allocations
++        if (io.canvasmc.canvas.GlobalConfiguration.getInstance().performance.reduceEntityAllocations) {
++            return this.attributes.computeIfAbsent(attribute, this.createInstance);
++        } else {
++            return this.attributes.computeIfAbsent(attribute, holder -> this.supplier.createInstance(this::onAttributeModified, (Holder<Attribute>)holder));
++        }
++        // Canvas end - cache lambda to reduce entity allocations
+     }
+ 
+     public boolean hasAttribute(Holder<Attribute> attribute) {

@@ -1,0 +1,27 @@
+--- a/net/minecraft/world/level/redstone/NeighborUpdater.java
++++ b/net/minecraft/world/level/redstone/NeighborUpdater.java
+@@ -60,9 +_,24 @@
+             state.handleNeighborChanged(level, pos, neighborBlock, orientation, movedByPiston);
+             // Spigot start
+         } catch (StackOverflowError ex) {
++            // Leaves start - update suppression crash fix
++            if (io.canvasmc.canvas.GlobalConfiguration.getInstance().vanillaFixes.updateSuppressionCrashFix) {
++                throw new io.canvasmc.canvas.util.UpdateSuppressionException(pos, level, neighborBlock, null, ex);
++            }
++            // Leaves end - update suppression crash fix
+             level.lastPhysicsProblem = pos.immutable();
+             // Spigot end
+         } catch (Throwable var9) {
++            // Leaves start - update suppression crash fix
++            if (io.canvasmc.canvas.GlobalConfiguration.getInstance().vanillaFixes.updateSuppressionCrashFix) {
++                if (var9 instanceof io.canvasmc.canvas.util.UpdateSuppressionException ue) {
++                    ue.provideBlock(level, pos, neighborBlock);
++                    throw ue;
++                } else {
++                    throw new io.canvasmc.canvas.util.UpdateSuppressionException(pos, level, neighborBlock, null, var9);
++                }
++            }
++            // Leaves end - update suppression crash fix
+             CrashReport crashReport = CrashReport.forThrowable(var9, "Exception while updating neighbours");
+             CrashReportCategory crashReportCategory = crashReport.addCategory("Block being updated");
+             crashReportCategory.setDetail(

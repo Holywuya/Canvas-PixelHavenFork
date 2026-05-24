@@ -1,0 +1,20 @@
+--- a/net/minecraft/world/level/block/state/StateHolder.java
++++ b/net/minecraft/world/level/block/state/StateHolder.java
+@@ -104,7 +_,16 @@
+         if (ret != null) {
+             return ret;
+         }
+-        throw new IllegalArgumentException("Cannot get property " + property + " as it does not exist in " + this.owner);
++        // Leaves start - update suppression crash fix
++        IllegalArgumentException iae = new IllegalArgumentException("Cannot get property " + property + " as it does not exist in " + this.owner);
++        if (io.canvasmc.canvas.GlobalConfiguration.getInstance().vanillaFixes.updateSuppressionCrashFix) {
++            io.canvasmc.canvas.util.UpdateSuppressionException exception = new io.canvasmc.canvas.util.UpdateSuppressionException(null, null, null, null, iae);
++            if (iae.getStackTrace()[1].getClassName().startsWith("net.minecraft")) {
++                throw exception;
++            }
++        }
++        throw iae;
++        // Leaves end - update suppression crash fix
+         // Paper end - optimise blockstate property access
+     }
+ 

@@ -46,7 +46,7 @@
 +                        }
 +                    }
 +
-+                    if (io.canvasmc.canvas.Config.INSTANCE.networking.reduceUselessMovePackets
++                    if (io.canvasmc.canvas.GlobalConfiguration.getInstance().networking.filterMovePackets
 +                        && canvas$isUselessMoveEntityPacket(packet)) {
 +                        packet = null;
 +                    }
@@ -64,7 +64,7 @@
                                  );
 -                        } else {
 +                        // Canvas start - filter ClientboundSetEntityMotionPacket
-+                        } else if (!io.canvasmc.canvas.Config.INSTANCE.networking.filterClientboundSetEntityMotionPacket) {
++                        } else if (!io.canvasmc.canvas.GlobalConfiguration.getInstance().networking.filterVelocityPacket) {
 +                            // sends all of them if not filtering
                              this.synchronizer.sendToTrackingPlayers(new ClientboundSetEntityMotionPacket(this.entity.getId(), this.lastSentMovement));
 +                        } else {
@@ -123,3 +123,12 @@
  
      private void handleMinecartPosRot(NewMinecartBehavior behavior, byte yRot, byte xRot, boolean dirty) {
          this.sendDirtyEntityData();
+@@ -352,7 +_,7 @@
+             if (!list.isEmpty()) {
+                 consumer.accept(new ClientboundSetEquipmentPacket(this.entity.getId(), list, true)); // Paper - data sanitization
+             }
+-            ((LivingEntity) this.entity).detectEquipmentUpdates(); // CraftBukkit - SPIGOT-3789: sync again immediately after sending
++            if (this.entity.totalEntityAge == 0) ((LivingEntity) this.entity).detectEquipmentUpdates(); // CraftBukkit - SPIGOT-3789: sync again immediately after sending // Leaves - fix chunk reload detector
+         }
+ 
+         if (!this.entity.getPassengers().isEmpty()) {

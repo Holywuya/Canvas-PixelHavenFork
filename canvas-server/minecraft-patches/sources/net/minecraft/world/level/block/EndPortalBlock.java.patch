@@ -7,8 +7,21 @@
 -        if (entity.canUsePortal(false)) {
 +        // Canvas start - blacklist non player entities from portals configs
 +        if (entity.canUsePortal(false) &&
-+            (!io.canvasmc.canvas.Config.INSTANCE.blacklistNonPlayerEntitiesFromEnteringEndPortals || entity instanceof ServerPlayer)) {
++            (!io.canvasmc.canvas.GlobalConfiguration.getInstance().blacklistNonPlayerEntitiesFromEnteringEndPortals || entity instanceof ServerPlayer)) {
 +        // Canvas end - blacklist non player entities from portals configs
              // CraftBukkit start - Entity in portal
              org.bukkit.event.entity.EntityPortalEnterEvent event = new org.bukkit.event.entity.EntityPortalEnterEvent(entity.getBukkitEntity(), org.bukkit.craftbukkit.util.CraftLocation.toBukkit(pos, level), org.bukkit.PortalType.ENDER); // Paper - add portal type
              level.getCraftServer().getPluginManager().callEvent(event);
+@@ -110,10 +_,10 @@
+             }
+ 
+             // CraftBukkit start
+-            set.removeAll(Relative.ROTATION); // remove relative rotation flags to simplify event mutation
++            // set.removeAll(Relative.ROTATION); // remove relative rotation flags to simplify event mutation // Leaves - no
+             float absoluteYaw = !flag ? f : entity.getYRot() + f;
+             float absolutePitch = entity.getXRot() + f1;
+-            org.bukkit.craftbukkit.event.PortalEventResult result = org.bukkit.craftbukkit.event.CraftEventFactory.handlePortalEvents(entity, org.bukkit.craftbukkit.util.CraftLocation.toBukkit(bottomCenter, level1, absoluteYaw, absolutePitch), org.bukkit.PortalType.ENDER, 0, 0);
++            org.bukkit.craftbukkit.event.PortalEventResult result = org.bukkit.craftbukkit.event.CraftEventFactory.handlePortalEvents(entity, org.bukkit.craftbukkit.util.CraftLocation.toBukkit(bottomCenter, level1.getWorld(), absoluteYaw, 0.0F), org.bukkit.PortalType.ENDER, 0, 0); // Leaves - fix CraftPortalEvent
+             if (result == null) {
+                 return null;
+             }

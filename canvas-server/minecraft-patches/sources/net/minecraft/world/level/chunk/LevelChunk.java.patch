@@ -74,11 +74,13 @@
      }
  
      @Override
-@@ -381,10 +_,19 @@
+@@ -380,11 +_,20 @@
+             if (blockState == state) {
                  return null;
              } else {
-                 Block block = state.getBlock();
+-                Block block = state.getBlock();
 -                this.heightmaps.get(Heightmap.Types.MOTION_BLOCKING).update(i, y, i2, state);
++                Block block = state.getBlock(); try { // Leaves start - update suppression crash fix
 +                // Canvas start - optimize heightmap
 +                // LevelChunkMixin -- skipGetHeightmap && skipHeightmapUpdate essentially just
 +                // make the following code do nothing, so just comment it out
@@ -96,6 +98,14 @@
                  boolean hasOnlyAir1 = section.hasOnlyAir();
                  if (hasOnlyAir != hasOnlyAir1) {
                      this.level.getChunkSource().getLightEngine().updateSectionStatus(pos, hasOnlyAir1);
+@@ -450,6 +_,7 @@
+                     this.markUnsaved();
+                     return blockState;
+                 }
++                } catch (io.canvasmc.canvas.util.UpdateSuppressionException e) { e.provideBlock(level, pos, block); throw e; } // Leaves - update suppression crash fix
+             }
+         }
+     }
 @@ -473,7 +_,7 @@
          // CraftBukkit start
          BlockEntity blockEntity = this.level.getCurrentWorldData().capturedTileEntities.get(pos); // Folia - region threading
@@ -144,8 +154,8 @@
          ChunkPos pos = this.getPos();
  
 +        // Canvas start - optimize post process generation
-+        io.canvasmc.canvas.Config.Chunks.FluidPostProcessingMode postProcessingMode = io.canvasmc.canvas.Config.INSTANCE.chunks.fluidPostProcessingMode;
-+        if (postProcessingMode.equals(io.canvasmc.canvas.Config.Chunks.FluidPostProcessingMode.FILTERED)) {
++        io.canvasmc.canvas.GlobalConfiguration.ChunkSystem.FluidPostProcessingMode postProcessingMode = io.canvasmc.canvas.GlobalConfiguration.getInstance().chunkSystem.fluidPostProcessingAlgorithm;
++        if (postProcessingMode.equals(io.canvasmc.canvas.GlobalConfiguration.ChunkSystem.FluidPostProcessingMode.FILTERED)) {
 +            // filtered
 +            int total = 0;
 +            int eliminated = 0;
@@ -168,7 +178,7 @@
 +            }
 +            // LOGGER.info(String.format("Eliminated %d/%d (%.2f%%) post processing fluids in chunk %s", eliminated, total, eliminated / (double) total * 100.0, this.chunkPos));
 +        }
-+        boolean disabled = postProcessingMode.equals(io.canvasmc.canvas.Config.Chunks.FluidPostProcessingMode.DISABLED);
++        boolean disabled = postProcessingMode.equals(io.canvasmc.canvas.GlobalConfiguration.ChunkSystem.FluidPostProcessingMode.DISABLED);
 +        // Canvas end - optimize post process generation
          for (int i = 0; i < this.postProcessing.length; i++) {
              ShortList list = this.postProcessing[i];
@@ -181,7 +191,7 @@
 -                        fluidState.tick(level, blockPos, blockState);
 +                    // Canvas start - optimize post process generation
 +                    if (!disabled && !fluidState.isEmpty()) {
-+                        if (io.canvasmc.canvas.Config.INSTANCE.chunks.fluidPostProcessingToScheduledTick) {
++                        if (io.canvasmc.canvas.GlobalConfiguration.getInstance().chunkSystem.makeFluidPostProcessScheduledTick) {
 +                            level.scheduleTick(blockPos, fluidState.getType(), 1);
 +                        } else fluidState.tick(level, blockPos, blockState);
 +                    // Canvas end - optimize post process generation

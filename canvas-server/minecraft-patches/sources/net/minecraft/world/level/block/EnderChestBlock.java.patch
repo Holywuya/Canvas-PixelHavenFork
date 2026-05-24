@@ -1,0 +1,20 @@
+--- a/net/minecraft/world/level/block/EnderChestBlock.java
++++ b/net/minecraft/world/level/block/EnderChestBlock.java
+@@ -85,7 +_,7 @@
+                 enderChestInventory.setActiveChest(enderChestBlockEntity); // Needs to happen before ChestMenu.threeRows as it is required for opening animations
+                 if (level instanceof ServerLevel serverLevel && player.openMenu(
+                     new SimpleMenuProvider(
+-                        (containerId, playerInventory, player1) -> io.canvasmc.canvas.Config.INSTANCE.containers.enderChestSixRows ? getEnderChestSixRows(containerId, playerInventory, player, enderChestInventory) : ChestMenu.threeRows(containerId, playerInventory, enderChestInventory), CONTAINER_TITLE
++                        (containerId, playerInventory, player1) -> io.canvasmc.canvas.GlobalConfiguration.getInstance().purpurContainers.enderChestSixRows ? getEnderChestSixRows(containerId, playerInventory, player, enderChestInventory) : ChestMenu.threeRows(containerId, playerInventory, enderChestInventory), CONTAINER_TITLE
+                     ) // Purpur - Barrels and enderchests 6 rows
+                 ).isPresent()) {
+                 // Paper end - Fix InventoryOpenEvent cancellation - moved up;
+@@ -102,7 +_,7 @@
+ 
+     // Purpur start - Barrels and enderchests 6 rows
+     private ChestMenu getEnderChestSixRows(int syncId, net.minecraft.world.entity.player.Inventory inventory, Player player, PlayerEnderChestContainer playerEnderChestContainer) {
+-        if (io.canvasmc.canvas.Config.INSTANCE.containers.enderChestPermissionRows) {
++        if (io.canvasmc.canvas.GlobalConfiguration.getInstance().purpurContainers.enderChestPermissionRows) {
+             org.bukkit.craftbukkit.entity.CraftHumanEntity bukkitPlayer = player.getBukkitEntity();
+             if (bukkitPlayer.hasPermission("purpur.enderchest.rows.six")) {
+                 player.sixRowEnderchestSlotCount = 54;

@@ -14,7 +14,7 @@
          if (this.level() instanceof ServerLevel) {
              for (ExperienceOrb experienceOrb : this.level()
 -                .getEntities(EntityTypeTest.forClass(ExperienceOrb.class), this.getBoundingBox().inflate(0.5), this::canMerge)) {
-+                .getEntities(EntityTypeTest.forClass(ExperienceOrb.class), this.getBoundingBox().inflate(io.canvasmc.canvas.Config.INSTANCE.fastOrbs ? 0.9 : 0.5), this::canMerge)) { // Canvas - fast orbs
++                .getEntities(EntityTypeTest.forClass(ExperienceOrb.class), this.getBoundingBox().inflate(io.canvasmc.canvas.WorldConfig.getDefaults().entities.fastOrbs ? 0.9 : 0.5), this::canMerge)) { // Canvas - fast orbs
                  this.merge(experienceOrb);
              }
          }
@@ -23,7 +23,7 @@
      public static void awardWithDirection(ServerLevel level, Vec3 pos, Vec3 direction, int amount, org.bukkit.entity.ExperienceOrb.@Nullable SpawnReason reason, @Nullable Entity triggerId, @Nullable Entity sourceId) {
      // Paper end - add reason to orbs
 +        // Canvas start - fast orbs
-+        if (io.canvasmc.canvas.Config.INSTANCE.fastOrbs) {
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().entities.fastOrbs) {
 +            if (amount <= 0) return; // skip if count is 0
 +            int experienceValue = getExperienceValue(amount);
 +            AABB aabb = AABB.ofSize(pos, 1.0, 1.0, 1.0);
@@ -47,12 +47,12 @@
      }
  
      private boolean canMerge(ExperienceOrb orb) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.fastOrbs) return orb.isAlive() && !this.is(orb); // Canvas - fast orbs
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().entities.fastOrbs) return orb.isAlive() && !this.is(orb); // Canvas - fast orbs
          return orb != this && canMerge(orb, this.getId(), this.getValue());
      }
  
      private static boolean canMerge(ExperienceOrb orb, int amount, int other) {
-+        if (io.canvasmc.canvas.Config.INSTANCE.fastOrbs) return orb.isAlive(); // Canvas - fast orbs
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().entities.fastOrbs) return orb.isAlive(); // Canvas - fast orbs
          return !orb.isRemoved() && (orb.getId() - amount) % io.papermc.paper.configuration.GlobalConfiguration.get().misc.xpOrbGroupsPerArea.or(ORB_GROUPS_PER_AREA) == 0 && orb.getValue() == other; // Paper - Configure how many orbs will merge together
      }
  
@@ -61,7 +61,7 @@
          }
          // Paper end - call orb merge event
 +        // Canvas start - fast orbs
-+        if (io.canvasmc.canvas.Config.INSTANCE.fastOrbs) {
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().entities.fastOrbs) {
 +            this.setValue(this.getValue() + orb.getValue());
 +            this.age = Math.min(this.age, orb.age);
 +            orb.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.MERGE); // CraftBukkit - add Bukkit remove cause
@@ -76,7 +76,7 @@
          if (entity instanceof ServerPlayer serverPlayer) {
              if (entity.takeXpDelay == 0 && new com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent(serverPlayer.getBukkitEntity(), (org.bukkit.entity.ExperienceOrb) this.getBukkitEntity()).callEvent()) { // Paper - PlayerPickupExperienceEvent
 -                entity.takeXpDelay = org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerXpCooldownEvent(entity, 2, org.bukkit.event.player.PlayerExpCooldownChangeEvent.ChangeReason.PICKUP_ORB).getNewCooldown(); // CraftBukkit - entity.takeXpDelay = 2;
-+                entity.takeXpDelay = org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerXpCooldownEvent(entity, io.canvasmc.canvas.Config.INSTANCE.fastOrbs ? 0 : 2, org.bukkit.event.player.PlayerExpCooldownChangeEvent.ChangeReason.PICKUP_ORB).getNewCooldown(); // CraftBukkit - entity.takeXpDelay = 2; // Canvas - fast orbs
++                entity.takeXpDelay = org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerXpCooldownEvent(entity, io.canvasmc.canvas.WorldConfig.getDefaults().entities.fastOrbs ? 0 : 2, org.bukkit.event.player.PlayerExpCooldownChangeEvent.ChangeReason.PICKUP_ORB).getNewCooldown(); // CraftBukkit - entity.takeXpDelay = 2; // Canvas - fast orbs
                  entity.take(this, 1);
                  int i = this.repairPlayerItems(serverPlayer, this.getValue());
                  if (i > 0) {

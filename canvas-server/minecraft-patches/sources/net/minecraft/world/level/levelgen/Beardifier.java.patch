@@ -21,7 +21,7 @@
      @Override
      public double compute(DensityFunction.FunctionContext context) {
 +        // Canvas start - optimize beardifier
-+        if (io.canvasmc.canvas.Config.INSTANCE.chunks.optimizeBeardifier) {
++        if (io.canvasmc.canvas.GlobalConfiguration.getInstance().chunkSystem.optimizeBeardifier) {
 +            if (this.affectedBox == null) {
 +                return 0.0;
 +            }
@@ -76,7 +76,7 @@
  
      private static double getBuryContribution(double x, double y, double z) {
 +        // Canvas start - optimize beardifier
-+        if (io.canvasmc.canvas.Config.INSTANCE.chunks.optimizeBeardifier) {
++        if (io.canvasmc.canvas.GlobalConfiguration.getInstance().chunkSystem.optimizeBeardifier) {
 +            double d = Math.sqrt(x * x + y * y + z * z);
 +            if (d > 6.0) {
 +                return 0.0;

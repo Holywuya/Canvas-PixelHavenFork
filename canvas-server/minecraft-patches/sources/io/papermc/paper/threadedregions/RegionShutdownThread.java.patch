@@ -16,3 +16,12 @@
                  } catch (final Throwable thr) {
                      LOGGER.error("Failed to close player inventory for player: " + player, thr);
                  }
+@@ -186,7 +_,7 @@
+                     final RegionizedWorldData worldData = region.regioniser.world.worldRegionData.get();
+                     for (final ServerPlayer localPlayer : worldData.getLocalPlayers()) {
+                         // if pearl duplication fix is enabled, remove the pearl
+-                        localPlayer.savePearls(io.canvasmc.canvas.Config.INSTANCE.fixes.pearlDuplication);
++                        localPlayer.savePearls(io.canvasmc.canvas.GlobalConfiguration.getInstance().vanillaFixes.pearlDuplication);
+                     }
+                 } catch (Throwable thrown) {
+                     LOGGER.error("Failed to save pearls for region around chunk " + center + " in world '" + region.regioniser.world.getWorld().getName() + "'", thrown);

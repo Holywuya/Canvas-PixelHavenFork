@@ -9,6 +9,23 @@
          this.chatMessageChain = new FutureChain(server.chatExecutor); // CraftBukkit - async chat
          this.tickEndEvent = new io.papermc.paper.event.packet.ClientTickEndEvent(player.getBukkitEntity()); // Paper - add client tick end event
          this.playerGameConnection =  new io.papermc.paper.connection.PaperPlayerGameConnection(this); // Paper
+@@ -1817,11 +_,15 @@
+     private boolean hasNewCollision(final ServerLevel level, final Entity entity, final AABB oldBox, final AABB newBox) {
+         final List<AABB> collisionsBB = new java.util.ArrayList<>();
+         final List<VoxelShape> collisionsVoxel = new java.util.ArrayList<>();
++        // Leaves start - fix Paper config preventMovingIntoUnloadedChunks
++        int flags = ca.spottedleaf.moonrise.patches.collisions.CollisionUtil.COLLISION_FLAG_CHECK_BORDER;
++        if (level.paperConfig().chunks.preventMovingIntoUnloadedChunks) flags |= ca.spottedleaf.moonrise.patches.collisions.CollisionUtil.COLLISION_FLAG_COLLIDE_WITH_UNLOADED_CHUNKS;
+         ca.spottedleaf.moonrise.patches.collisions.CollisionUtil.getCollisions(
+             level, entity, newBox, collisionsVoxel, collisionsBB,
+-            ca.spottedleaf.moonrise.patches.collisions.CollisionUtil.COLLISION_FLAG_COLLIDE_WITH_UNLOADED_CHUNKS | ca.spottedleaf.moonrise.patches.collisions.CollisionUtil.COLLISION_FLAG_CHECK_BORDER,
++            flags,
+             null, null
+         );
++        // Leaves end - fix Paper config preventMovingIntoUnloadedChunks
+ 
+         for (int i = 0, len = collisionsBB.size(); i < len; ++i) {
+             final AABB box = collisionsBB.get(i);
 @@ -2410,7 +_,7 @@
          command = event.getMessage().substring(1);
          // CraftBukkit end
@@ -23,7 +40,7 @@
          this.chatSession = chatSession;
          this.hasLoggedExpiry = false; // Paper - Prevent causing expired keys from impacting new joins
 -        this.signedMessageDecoder = chatSession.createMessageDecoder(this.player.getUUID());
-+        if (!io.canvasmc.canvas.Config.INSTANCE.enableNoChatReports) this.signedMessageDecoder = chatSession.createMessageDecoder(this.player.getUUID()); // Canvas - no chat reports
++        if (!io.canvasmc.canvas.GlobalConfiguration.getInstance().chat.disableChatReporting) this.signedMessageDecoder = chatSession.createMessageDecoder(this.player.getUUID()); // Canvas - no chat reports
          this.chatMessageChain
              .append(
                  () -> {

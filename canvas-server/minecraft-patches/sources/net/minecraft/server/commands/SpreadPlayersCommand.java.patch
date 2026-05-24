@@ -46,7 +46,7 @@
      private static final int MAX_ITERATION_COUNT = 10000;
      private static final Dynamic4CommandExceptionType ERROR_FAILED_TO_SPREAD_TEAMS = new Dynamic4CommandExceptionType(
          (teamCount, x, z, suggestedSpread) -> Component.translatableEscape("commands.spreadplayers.failed.teams", teamCount, x, z, suggestedSpread)
-@@ -112,24 +_,178 @@
+@@ -112,24 +_,176 @@
              double d1 = center.y - maxRange;
              double d2 = center.x + maxRange;
              double d3 = center.y + maxRange;
@@ -70,9 +70,7 @@
 -    }
 +            // Canvas start - fix commands with region threading
 +            EXECUTOR.queue(() -> {
-+                RandomSource fasterRandom = io.canvasmc.canvas.Config.ENABLE_FASTER_RANDOM ?
-+                    new io.canvasmc.canvas.util.FasterRandomSource(net.minecraft.world.level.levelgen.RandomSupport.generateUniqueSeed()) :
-+                    new ca.spottedleaf.moonrise.common.util.SimpleThreadUnsafeRandom(net.minecraft.world.level.levelgen.RandomSupport.generateUniqueSeed());
++                RandomSource fasterRandom = io.canvasmc.canvas.GlobalConfiguration.createFastRandom();
 +                // Note: createInitialPositions *is* thread-safe, and this can
 +                //      actually be quite an expensive method, so we use an optimized
 +                //      random source too to try and help out

@@ -1,0 +1,11 @@
+--- a/net/minecraft/advancements/criterion/TameAnimalTrigger.java
++++ b/net/minecraft/advancements/criterion/TameAnimalTrigger.java
+@@ -16,7 +_,7 @@
+     }
+ 
+     public void trigger(ServerPlayer player, Animal entity) {
+-        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
+         LootContext lootContext = EntityPredicate.createContext(player, entity);
+         this.trigger(player, instance -> instance.matches(lootContext));
+     }

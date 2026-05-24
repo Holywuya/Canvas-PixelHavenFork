@@ -1,5 +1,14 @@
 --- a/io/papermc/paper/threadedregions/TickRegions.java
 +++ b/io/papermc/paper/threadedregions/TickRegions.java
+@@ -34,7 +_,7 @@
+     }
+ 
+     private static boolean initialised;
+-    private static boolean started;
++    public static boolean started; // Canvas - made public for config system
+     private static TickRegionScheduler scheduler;
+ 
+     public static TickRegionScheduler getScheduler() {
 @@ -250,6 +_,7 @@
          private final RegionStats regionStats;
  

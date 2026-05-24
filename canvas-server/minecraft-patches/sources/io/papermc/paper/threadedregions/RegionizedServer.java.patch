@@ -6,7 +6,7 @@
      public void init() {
 +        // Canvas start - default respawn dimension config
 +        // validate respawn dimension config entry first
-+        net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> respawnDimension = io.canvasmc.canvas.Config.INSTANCE.fetchRespawnDimensionKey();
++        net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> respawnDimension = io.canvasmc.canvas.GlobalConfiguration.fetchRespawnDimensionKey();
 +        ServerLevel level = MinecraftServer.getServer().getLevel(respawnDimension);
 +        if (level == null) {
 +            throw new IllegalStateException("Respawn dimension invalid, could not fetch dimension from value '" + respawnDimension + "'");
@@ -15,3 +15,11 @@
          // call init event _before_ scheduling anything
          new RegionizedServerInitEvent().callEvent();
  
+@@ -349,6 +_,7 @@
+ 
+         // tick player ping sample
+         this.tickPlayerSample();
++        net.minecraft.server.gui.PlayerListComponent.tick(); // Canvas - region threading
+ 
+         // tick worlds
+         for (final ServerLevel world : this.worlds) {

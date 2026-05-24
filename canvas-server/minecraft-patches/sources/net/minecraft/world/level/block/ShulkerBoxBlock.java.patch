@@ -1,0 +1,21 @@
+--- a/net/minecraft/world/level/block/ShulkerBoxBlock.java
++++ b/net/minecraft/world/level/block/ShulkerBoxBlock.java
+@@ -181,7 +_,17 @@
+ 
+     @Override
+     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+-        return AbstractContainerMenu.getRedstoneSignalFromBlockEntity(level.getBlockEntity(pos));
++        // Leaves start - update suppression crash fix
++        try {
++            return AbstractContainerMenu.getRedstoneSignalFromBlockEntity(level.getBlockEntity(pos));
++        } catch (ClassCastException ex) {
++            if (io.canvasmc.canvas.GlobalConfiguration.getInstance().vanillaFixes.updateSuppressionCrashFix) {
++                throw new io.canvasmc.canvas.util.UpdateSuppressionException(pos, null, this, null, ex);
++            } else {
++                throw ex;
++            }
++        }
++        // Leaves end - update suppression crash fix
+     }
+ 
+     public static Block getBlockByColor(@Nullable DyeColor color) {

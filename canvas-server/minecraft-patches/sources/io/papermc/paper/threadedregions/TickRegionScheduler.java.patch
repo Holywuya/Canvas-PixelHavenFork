@@ -1,0 +1,11 @@
+--- a/io/papermc/paper/threadedregions/TickRegionScheduler.java
++++ b/io/papermc/paper/threadedregions/TickRegionScheduler.java
+@@ -41,7 +_,7 @@
+     }
+ 
+     // Canvas start - region threading
+-    private static final float DEFAULT_TICK_RATE = io.canvasmc.canvas.Config.INSTANCE.scheduler.defaultTickRate;
++    private static final float DEFAULT_TICK_RATE = io.canvasmc.canvas.GlobalConfiguration.getInstance().regionScheduler.defaultTickRate;
+     private static final long DEFAULT_TICK_TIME_NANOS = (long) (1_000_000_000 / DEFAULT_TICK_RATE);
+ 
+     private static float CURRENT_TICK_RATE = DEFAULT_TICK_RATE;

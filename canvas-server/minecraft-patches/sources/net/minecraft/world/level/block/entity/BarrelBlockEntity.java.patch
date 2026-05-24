@@ -1,0 +1,29 @@
+--- a/net/minecraft/world/level/block/entity/BarrelBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/BarrelBlockEntity.java
+@@ -60,7 +_,7 @@
+     // CraftBukkit end
+     private static final Component DEFAULT_NAME = Component.translatable("container.barrel");
+     // Purpur start - Barrels and enderchests 6 rows
+-    private NonNullList<ItemStack> items = NonNullList.withSize(switch (io.canvasmc.canvas.Config.INSTANCE.containers.barrelRows) {
++    private NonNullList<ItemStack> items = NonNullList.withSize(switch (io.canvasmc.canvas.GlobalConfiguration.getInstance().purpurContainers.barrelRows) {
+         case 6 -> 54;
+         case 5 -> 45;
+         case 4 -> 36;
+@@ -122,7 +_,7 @@
+     @Override
+     public int getContainerSize() {
+         // Purpur start - Barrels and enderchests 6 rows
+-        return switch (io.canvasmc.canvas.Config.INSTANCE.containers.barrelRows) {
++        return switch (io.canvasmc.canvas.GlobalConfiguration.getInstance().purpurContainers.barrelRows) {
+             case 6 -> 54;
+             case 5 -> 45;
+             case 4 -> 36;
+@@ -151,7 +_,7 @@
+     @Override
+     protected AbstractContainerMenu createMenu(int id, Inventory player) {
+         // Purpur start - Barrels and enderchests 6 rows
+-        return switch (io.canvasmc.canvas.Config.INSTANCE.containers.barrelRows) {
++        return switch (io.canvasmc.canvas.GlobalConfiguration.getInstance().purpurContainers.barrelRows) {
+             case 6 -> ChestMenu.sixRows(id, player, this);
+             case 5 -> ChestMenu.fiveRows(id, player, this);
+             case 4 -> ChestMenu.fourRows(id, player, this);

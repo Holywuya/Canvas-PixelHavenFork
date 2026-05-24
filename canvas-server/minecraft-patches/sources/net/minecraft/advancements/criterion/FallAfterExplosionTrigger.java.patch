@@ -1,0 +1,11 @@
+--- a/net/minecraft/advancements/criterion/FallAfterExplosionTrigger.java
++++ b/net/minecraft/advancements/criterion/FallAfterExplosionTrigger.java
+@@ -19,7 +_,7 @@
+     }
+ 
+     public void trigger(ServerPlayer player, Vec3 pos, @Nullable Entity entity) {
+-        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
+         Vec3 vec3 = player.position();
+         LootContext lootContext = entity != null ? EntityPredicate.createContext(player, entity) : null;
+         this.trigger(player, triggerInstance -> triggerInstance.matches(player.level(), pos, vec3, lootContext));

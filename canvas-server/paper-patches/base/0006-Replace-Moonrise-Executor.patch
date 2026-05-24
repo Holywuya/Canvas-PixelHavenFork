@@ -66,7 +66,7 @@ index b7c7de9797d310b68228faf21164ecc701590a59..a1e8304df891b881c9fe53bd29b55a46
 +                new io.canvasmc.canvas.world.chunk.BalancedChunkSystem.ThreadBuilder() {
 +                    @Override
 +                    public void accept(final Thread thread) {
-+                        thread.setPriority(io.canvasmc.canvas.GlobalConfiguration.getInstance().chunkSystem.threadPriority);
++                        thread.setPriority(io.canvasmc.canvas.Config.INSTANCE.chunks.threadPoolPriority);
 +                        thread.setDaemon(true);
 +                        thread.setUncaughtExceptionHandler((thread1, throwable) -> LOGGER.error("Uncaught exception in thread {}", thread1.getName(), throwable));
 +                        thread.setName("ls_wg worker #" + getAndIncrementId());
@@ -78,7 +78,7 @@ index b7c7de9797d310b68228faf21164ecc701590a59..a1e8304df891b881c9fe53bd29b55a46
 +                new io.canvasmc.canvas.world.chunk.BalancedChunkSystem.ThreadBuilder() {
 +                    @Override
 +                    public void accept(final Thread thread) {
-+                        thread.setPriority(io.canvasmc.canvas.GlobalConfiguration.getInstance().chunkSystem.threadPriority);
++                        thread.setPriority(io.canvasmc.canvas.Config.INSTANCE.chunks.threadPoolPriority);
 +                        thread.setDaemon(true);
 +                        thread.setUncaughtExceptionHandler((thread1, throwable) -> LOGGER.error("Uncaught exception in thread {}", thread1.getName(), throwable));
 +                        thread.setName("ls_wg/io worker #" + getAndIncrementId());

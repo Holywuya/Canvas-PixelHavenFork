@@ -1,0 +1,11 @@
+--- a/net/minecraft/advancements/criterion/UsedEnderEyeTrigger.java
++++ b/net/minecraft/advancements/criterion/UsedEnderEyeTrigger.java
+@@ -13,7 +_,7 @@
+     }
+ 
+     public void trigger(ServerPlayer player, BlockPos pos) {
+-        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
+         double d = player.getX() - pos.getX();
+         double d1 = player.getZ() - pos.getZ();
+         double d2 = d * d + d1 * d1;

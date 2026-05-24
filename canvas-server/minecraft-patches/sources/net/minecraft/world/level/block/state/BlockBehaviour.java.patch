@@ -1,5 +1,14 @@
 --- a/net/minecraft/world/level/block/state/BlockBehaviour.java
 +++ b/net/minecraft/world/level/block/state/BlockBehaviour.java
+@@ -167,7 +_,7 @@
+     }
+ 
+     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+-        org.spigotmc.AsyncCatcher.catchOp("block onPlace"); // Spigot
++        io.canvasmc.canvas.util.TickGuard.guard(pos, level, "Cannot place block async"); // Canvas - region guards
+     }
+ 
+     protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
 @@ -427,6 +_,9 @@
          private final boolean ignitedByLava;
          @Deprecated

@@ -1,5 +1,14 @@
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
+@@ -200,7 +_,7 @@
+     public static final NameAndId ANONYMOUS_PLAYER_PROFILE = new NameAndId(Util.NIL_UUID, "Anonymous Player");
+     public LevelStorageSource.LevelStorageAccess storageSource;
+     public final PlayerDataStorage playerDataStorage;
+-    private final List<Runnable> tickables = Lists.newArrayList();
++    // Canvas - region threading - removed tickables list
+     private ServerConnectionListener connection;
+     // Paper - per world load listener - moved LevelLoadListener to ServerLevel
+     private @Nullable ServerStatus status;
 @@ -736,6 +_,7 @@
              );
          }
@@ -50,12 +59,61 @@
  
          // Send time updates to everyone, it will get the right time from the world the player is in.
          // Paper start - Perf: Optimize time updates
+@@ -1912,10 +_,28 @@
+ 
+             try {
+                 serverLevel.tick(hasTimeLeft, region); // Folia - region threading
++            // Leaves start - update suppression crash fix
++            } catch (io.canvasmc.canvas.util.UpdateSuppressionException exception) {
++                if (io.canvasmc.canvas.GlobalConfiguration.getInstance().vanillaFixes.updateSuppressionCrashFix) {
++                    exception.provideLevel(serverLevel);
++                    exception.consume();
++                } else {
++                    throw exception;
++                }
+             } catch (Throwable var7) {
++                if (var7.getCause() instanceof io.canvasmc.canvas.util.UpdateSuppressionException exception) {
++                    if (io.canvasmc.canvas.GlobalConfiguration.getInstance().vanillaFixes.updateSuppressionCrashFix) {
++                        exception.provideLevel(serverLevel);
++                        exception.consume();
++                    } else {
++                        throw var7;
++                    }
++                } else {
++            // Leaves end - update suppression crash fix
+                 CrashReport crashReport = CrashReport.forThrowable(var7, "Exception ticking world");
+                 serverLevel.fillReportDetails(crashReport);
+                 throw new ReportedException(crashReport);
++            } // Leaves - update suppression crash fix
+             }
+ 
+             regionizedWorldData.explosionDensityCache.clear(); // Paper - Optimize explosions // Folia - region threading
+@@ -1929,9 +_,7 @@
+             GameTestTicker.SINGLETON.tick();
+         }
+ 
+-        if (false) for (Runnable runnable : this.tickables) { // Folia - region threading - TODO WTF is this?
+-            runnable.run();
+-        }
++        // Canvas - region threading - removed dead tickables loop
+ 
+         if (false) for (ServerPlayer serverPlayer : this.playerList.getPlayers()) { // Folia - region threading
+             serverPlayer.connection.chunkSender.sendNextChunks(serverPlayer);
+@@ -1968,7 +_,7 @@
+     }
+ 
+     public void addTickable(Runnable tickable) {
+-        this.tickables.add(tickable);
++        throw new UnsupportedOperationException("Unsupported in region threading");
+     }
+ 
+     protected void setId(String serverId) {
 @@ -2031,7 +_,7 @@
  
      @DontObfuscate
      public String getServerModName() {
 -        return io.papermc.paper.ServerBuildInfo.buildInfo().brandName(); // Paper
-+        return io.canvasmc.canvas.Config.INSTANCE.serverModName; // Canvas - Use configurable server branding
++        return io.canvasmc.canvas.GlobalConfiguration.getInstance().serverModName; // Canvas - Use configurable server branding
      }
  
      public SystemReport fillSystemReport(SystemReport systemReport) {
@@ -65,7 +123,7 @@
  
 +    // Canvas start - no chat reports
 +    public boolean canvas$ncrEnforceSecureProfile() {
-+        if (io.canvasmc.canvas.Config.INSTANCE.enableNoChatReports) return false; // NCR doesn't require secure profile
++        if (io.canvasmc.canvas.GlobalConfiguration.getInstance().chat.disableChatReporting) return false; // NCR doesn't require secure profile
 +        return this.enforceSecureProfile();
 +    }
 +

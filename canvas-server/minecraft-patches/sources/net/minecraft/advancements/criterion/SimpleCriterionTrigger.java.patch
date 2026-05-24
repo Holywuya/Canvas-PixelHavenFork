@@ -1,0 +1,11 @@
+--- a/net/minecraft/advancements/criterion/SimpleCriterionTrigger.java
++++ b/net/minecraft/advancements/criterion/SimpleCriterionTrigger.java
+@@ -39,7 +_,7 @@
+     }
+ 
+     protected void trigger(ServerPlayer player, Predicate<T> testTrigger) {
+-        if (io.canvasmc.canvas.Config.INSTANCE.disableCriterionTrigger) return; // Canvas - disable criterion trigger config
++        if (io.canvasmc.canvas.WorldConfig.getDefaults().disableCriterionTrigger) return; // Canvas - disable criterion trigger config
+         PlayerAdvancements advancements = player.getAdvancements();
+         Set<CriterionTrigger.Listener<T>> set = (Set) advancements.criterionData.get(this); // Paper - fix PlayerAdvancements leak
+         if (set != null && !set.isEmpty()) {
