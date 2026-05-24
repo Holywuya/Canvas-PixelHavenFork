@@ -9,6 +9,15 @@
      private ServerConnectionListener connection;
      // Paper - per world load listener - moved LevelLoadListener to ServerLevel
      private @Nullable ServerStatus status;
+@@ -271,7 +_,7 @@
+     public org.bukkit.craftbukkit.CraftServer server;
+     public joptsimple.OptionSet options;
+     public org.bukkit.command.ConsoleCommandSender console;
+-    //public static int currentTick; // Paper - improve tick loop // Folia - region threading
++    public static int currentTick; // Canvas - compatibility shim for plugins (FAWE) // Paper - improve tick loop // Folia - region threading
+     public java.util.Queue<Runnable> processQueue = new java.util.concurrent.ConcurrentLinkedQueue<Runnable>();
+     public int autosavePeriod;
+     // Paper - don't store the vanilla dispatcher
 @@ -736,6 +_,7 @@
              );
          }
@@ -43,6 +52,15 @@
  
              while (this.running) {
                  final long tickStart = System.nanoTime(); // Paper - improve tick loop
+@@ -1356,7 +_,7 @@
+                 this.lastOverloadWarningNanos = this.nextTickTimeNanos;
+ 
+                 this.currentTickStart = tickStart;
+-                //++MinecraftServer.currentTick; // Folia - region threading
++                MinecraftServer.currentTick++; // Canvas - compatibility shim for plugins (FAWE) // Folia - region threading
+                 // Paper end - improve tick loop
+ 
+                 boolean flag = l == 0L;
 @@ -1873,12 +_,28 @@
          //io.papermc.paper.adventure.providers.ClickCallbackProviderImpl.DIALOG_CLICK_MANAGER.handleQueue(this.tickCount); // Paper // Folia - region threading - moved to global tick
          //this.getFunctions().tick(); // Folia - region threading - TODO Purge functions
