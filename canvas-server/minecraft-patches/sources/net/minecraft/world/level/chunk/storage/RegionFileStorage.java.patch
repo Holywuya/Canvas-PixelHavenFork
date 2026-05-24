@@ -1,0 +1,194 @@
+--- a/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
++++ b/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
+@@ -19,7 +_,7 @@
+     private static final org.slf4j.Logger LOGGER = com.mojang.logging.LogUtils.getLogger(); // Paper
+     public static final String ANVIL_EXTENSION = ".mca";
+     private static final int MAX_CACHE_SIZE = 256;
+-    public final Long2ObjectLinkedOpenHashMap<RegionFile> regionCache = new Long2ObjectLinkedOpenHashMap<>();
++    public final Long2ObjectLinkedOpenHashMap<io.canvasmc.canvas.region.IRegionFile> regionCache = new Long2ObjectLinkedOpenHashMap<>();  // Canvas - Configurable region file format
+     private final RegionStorageInfo info;
+     private final Path folder;
+     private final boolean sync;
+@@ -34,7 +_,7 @@
+     @Nullable
+     public static ChunkPos getRegionFileCoordinates(Path file) {
+         String fileName = file.getFileName().toString();
+-        if (!fileName.startsWith("r.") || !fileName.endsWith(".mca")) {
++        if (!fileName.startsWith("r.") || !fileName.endsWith(getExtensionName())) { // Canvas - Configurable region file format
+             return null;
+         }
+ 
+@@ -59,8 +_,17 @@
+     private static final int MAX_NON_EXISTING_CACHE = 1024 * 4;
+     private final it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet nonExistingRegionFiles = new it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet();
+     private static String getRegionFileName(final int chunkX, final int chunkZ) {
+-        return "r." + (chunkX >> REGION_SHIFT) + "." + (chunkZ >> REGION_SHIFT) + ".mca";
+-    }
++        return "r." + (chunkX >> REGION_SHIFT) + "." + (chunkZ >> REGION_SHIFT) + getExtensionName(); // Canvas - Configurable region file format
++    }
++    // Canvas start - Configurable region file format
++    public static io.canvasmc.canvas.region.IRegionFile createNew(RegionStorageInfo info, Path filePath, Path folder, boolean sync) throws IOException {
++        return io.canvasmc.canvas.region.RegionFormatFactory.createNew(info, filePath, folder, sync);
++    }
++
++    public static String getExtensionName() {
++        return io.canvasmc.canvas.region.RegionFormatFactory.getExtensionName();
++    }
++    // Canvas end
+ 
+     private boolean doesRegionFilePossiblyExist(final long position) {
+         synchronized (this.nonExistingRegionFiles) {
+@@ -94,15 +_,15 @@
+     }
+ 
+     @Override
+-    public synchronized final RegionFile moonrise$getRegionFileIfLoaded(final int chunkX, final int chunkZ) {
++    public synchronized final io.canvasmc.canvas.region.IRegionFile moonrise$getRegionFileIfLoaded(final int chunkX, final int chunkZ) { // Canvas - Configurable region file format
+         return this.regionCache.getAndMoveToFirst(ChunkPos.asLong(chunkX >> REGION_SHIFT, chunkZ >> REGION_SHIFT));
+     }
+ 
+     @Override
+-    public synchronized final RegionFile moonrise$getRegionFileIfExists(final int chunkX, final int chunkZ) throws IOException {
++    public synchronized final io.canvasmc.canvas.region.IRegionFile moonrise$getRegionFileIfExists(final int chunkX, final int chunkZ) throws IOException { // Canvas - Configurable region file format
+         final long key = ChunkPos.asLong(chunkX >> REGION_SHIFT, chunkZ >> REGION_SHIFT);
+ 
+-        RegionFile ret = this.regionCache.getAndMoveToFirst(key);
++        io.canvasmc.canvas.region.IRegionFile ret = this.regionCache.getAndMoveToFirst(key); // Canvas - Configurable region file format
+         if (ret != null) {
+             return ret;
+         }
+@@ -126,7 +_,7 @@
+ 
+         FileUtil.createDirectoriesSafe(this.folder);
+ 
+-        ret = new RegionFile(this.info, regionPath, this.folder, this.sync);
++        ret = this.createNew(this.info, regionPath, this.folder, this.sync); // Canvas - Configurable region file format
+ 
+         this.regionCache.putAndMoveToFirst(key, ret);
+ 
+@@ -145,7 +_,7 @@
+         }
+ 
+         final ChunkPos pos = new ChunkPos(chunkX, chunkZ);
+-        final RegionFile regionFile = this.getRegionFile(pos);
++        final io.canvasmc.canvas.region.IRegionFile regionFile = this.getRegionFile(pos); // Canvas - Configurable region file format
+ 
+         // note: not required to keep regionfile loaded after this call, as the write param takes a regionfile as input
+         // (and, the regionfile parameter is unused for writing until the write call)
+@@ -179,7 +_,7 @@
+     ) throws IOException {
+         final ChunkPos pos = new ChunkPos(chunkX, chunkZ);
+         if (writeData.result() == ca.spottedleaf.moonrise.patches.chunk_system.io.MoonriseRegionFileIO.RegionDataController.WriteData.WriteResult.DELETE) {
+-            final RegionFile regionFile = this.moonrise$getRegionFileIfExists(chunkX, chunkZ);
++            final io.canvasmc.canvas.region.IRegionFile regionFile = this.moonrise$getRegionFileIfExists(chunkX, chunkZ); // Canvas - Configurable region file format
+             if (regionFile != null) {
+                 regionFile.clear(pos);
+             } // else: didn't exist
+@@ -194,7 +_,7 @@
+     public final ca.spottedleaf.moonrise.patches.chunk_system.io.MoonriseRegionFileIO.RegionDataController.ReadData moonrise$readData(
+         final int chunkX, final int chunkZ
+     ) throws IOException {
+-        final RegionFile regionFile = this.moonrise$getRegionFileIfExists(chunkX, chunkZ);
++        final io.canvasmc.canvas.region.IRegionFile regionFile = this.moonrise$getRegionFileIfExists(chunkX, chunkZ); // Canvas - Configurable region file format
+ 
+         final DataInputStream input = regionFile == null ? null : regionFile.getChunkDataInputStream(new ChunkPos(chunkX, chunkZ));
+ 
+@@ -239,7 +_,7 @@
+ 
+             final ChunkPos pos = new ChunkPos(chunkX, chunkZ);
+             final ChunkPos headerChunkPos = SerializableChunkData.getChunkCoordinate(ret);
+-            final RegionFile regionFile = this.getRegionFile(pos);
++            final io.canvasmc.canvas.region.IRegionFile regionFile = this.getRegionFile(pos); // Canvas - Configurable region file format
+ 
+             if (regionFile.getRecalculateCount() != readData.recalculateCount()) {
+                 return null;
+@@ -263,7 +_,7 @@
+     }
+     // Paper end - rewrite chunk system
+     // Paper start - rewrite chunk system
+-    public RegionFile getRegionFile(ChunkPos chunkcoordintpair) throws IOException {
++    public io.canvasmc.canvas.region.IRegionFile getRegionFile(ChunkPos chunkcoordintpair) throws IOException { // Canvas - Configurable region file format
+         return this.getRegionFile(chunkcoordintpair, false);
+     }
+     // Paper end - rewrite chunk system
+@@ -275,7 +_,7 @@
+         this.isChunkData = isChunkDataFolder(this.folder); // Paper - recalculate region file headers
+     }
+ 
+-    @org.jetbrains.annotations.Contract("_, false -> !null") @Nullable private RegionFile getRegionFile(ChunkPos chunkPos, boolean existingOnly) throws IOException { // CraftBukkit
++    @org.jetbrains.annotations.Contract("_, false -> !null") private io.canvasmc.canvas.region.@Nullable IRegionFile getRegionFile(ChunkPos chunkPos, boolean existingOnly) throws IOException { // CraftBukkit // Canvas - Configurable region file format
+         // Paper start - rewrite chunk system
+         if (existingOnly) {
+             return this.moonrise$getRegionFileIfExists(chunkPos.x, chunkPos.z);
+@@ -283,7 +_,7 @@
+         synchronized (this) {
+             final long key = ChunkPos.asLong(chunkPos.x >> REGION_SHIFT, chunkPos.z >> REGION_SHIFT);
+ 
+-            RegionFile ret = this.regionCache.getAndMoveToFirst(key);
++            io.canvasmc.canvas.region.IRegionFile ret = this.regionCache.getAndMoveToFirst(key); // Canvas - Configurable region file format
+             if (ret != null) {
+                 return ret;
+             }
+@@ -298,7 +_,7 @@
+ 
+             FileUtil.createDirectoriesSafe(this.folder);
+ 
+-            ret = new RegionFile(this.info, regionPath, this.folder, this.sync);
++            ret = this.createNew(this.info, regionPath, this.folder, this.sync); // Canvas - Configurable region file format
+ 
+             this.regionCache.putAndMoveToFirst(key, ret);
+ 
+@@ -312,7 +_,7 @@
+         org.apache.logging.log4j.LogManager.getLogger().fatal(msg + " (" + file.toString().replaceAll(".+[\\\\/]", "") + " - " + x + "," + z + ") Go clean it up to remove this message. /minecraft:tp " + (x<<4)+" 128 "+(z<<4) + " - DO NOT REPORT THIS TO PAPER - You may ask for help on Discord, but do not file an issue. These error messages can not be removed.");
+     }
+ 
+-    private static CompoundTag readOversizedChunk(RegionFile regionfile, ChunkPos chunkCoordinate) throws IOException {
++    private static CompoundTag readOversizedChunk(io.canvasmc.canvas.region.IRegionFile regionfile, ChunkPos chunkCoordinate) throws IOException { // Canvas - Configurable region file format
+         synchronized (regionfile) {
+             try (DataInputStream datainputstream = regionfile.getChunkDataInputStream(chunkCoordinate)) {
+                 CompoundTag oversizedData = regionfile.getOversizedData(chunkCoordinate.x, chunkCoordinate.z);
+@@ -346,7 +_,7 @@
+ 
+     public @Nullable CompoundTag read(ChunkPos chunkPos) throws IOException {
+         // CraftBukkit start - SPIGOT-5680: There's no good reason to preemptively create files on read, save that for writing
+-        RegionFile regionFile = this.getRegionFile(chunkPos, true);
++        io.canvasmc.canvas.region.IRegionFile regionFile = this.getRegionFile(chunkPos, true); // Canvas - Configurable region file format
+         if (regionFile == null) {
+             return null;
+         }
+@@ -385,7 +_,7 @@
+ 
+     public void scanChunk(ChunkPos chunkPos, StreamTagVisitor visitor) throws IOException {
+         // CraftBukkit start - SPIGOT-5680: There's no good reason to preemptively create files on read, save that for writing
+-        RegionFile regionFile = this.getRegionFile(chunkPos, true);
++        io.canvasmc.canvas.region.IRegionFile regionFile = this.getRegionFile(chunkPos, true); // Canvas - Configurable region file format
+         if (regionFile == null) {
+             return;
+         }
+@@ -400,7 +_,7 @@
+ 
+     public void write(ChunkPos chunkPos, @Nullable CompoundTag chunkData) throws IOException { // Paper - rewrite chunk system - public
+         if (!SharedConstants.DEBUG_DONT_SAVE_WORLD) {
+-            RegionFile regionFile = this.getRegionFile(chunkPos, chunkData == null); // CraftBukkit // Paper - rewrite chunk system
++            io.canvasmc.canvas.region.IRegionFile regionFile = this.getRegionFile(chunkPos, chunkData == null); // CraftBukkit // Paper - rewrite chunk system // Canvas - Configurable region file format
+             // Paper start - rewrite chunk system
+             if (regionFile == null) {
+                 // if the RegionFile doesn't exist, no point in deleting from it
+@@ -431,7 +_,7 @@
+         // Paper start - rewrite chunk system
+         synchronized (this) {
+             final ExceptionCollector<IOException> exceptionCollector = new ExceptionCollector<>();
+-            for (final RegionFile regionFile : this.regionCache.values()) {
++            for (final io.canvasmc.canvas.region.IRegionFile regionFile : this.regionCache.values()) { // Canvas - Configurable region file format
+                 try {
+                     regionFile.close();
+                 } catch (final IOException ex) {
+@@ -447,7 +_,7 @@
+         // Paper start - rewrite chunk system
+         synchronized (this) {
+             final ExceptionCollector<IOException> exceptionCollector = new ExceptionCollector<>();
+-            for (final RegionFile regionFile : this.regionCache.values()) {
++            for (final io.canvasmc.canvas.region.IRegionFile regionFile : this.regionCache.values()) { // Canvas - Configurable region file format
+                 try {
+                     regionFile.flush();
+                 } catch (final IOException ex) {

@@ -1,0 +1,14 @@
+--- a/ca/spottedleaf/moonrise/patches/chunk_system/io/ChunkSystemRegionFileStorage.java
++++ b/ca/spottedleaf/moonrise/patches/chunk_system/io/ChunkSystemRegionFileStorage.java
+@@ -8,9 +_,9 @@
+ 
+     public boolean moonrise$doesRegionFileNotExistNoIO(final int chunkX, final int chunkZ);
+ 
+-    public RegionFile moonrise$getRegionFileIfLoaded(final int chunkX, final int chunkZ);
++    public io.canvasmc.canvas.region.IRegionFile moonrise$getRegionFileIfLoaded(final int chunkX, final int chunkZ); // Canvas - Configurable region file format
+ 
+-    public RegionFile moonrise$getRegionFileIfExists(final int chunkX, final int chunkZ) throws IOException;
++    public io.canvasmc.canvas.region.IRegionFile moonrise$getRegionFileIfExists(final int chunkX, final int chunkZ) throws IOException; // Canvas - Configurable region file format
+ 
+     public MoonriseRegionFileIO.RegionDataController.WriteData moonrise$startWrite(
+             final int chunkX, final int chunkZ, final CompoundTag compound

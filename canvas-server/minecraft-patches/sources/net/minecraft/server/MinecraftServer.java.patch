@@ -17,6 +17,19 @@
          this.initWorld(serverLevel, serverLevelData, worldOptions);
      }
      public void initWorld(ServerLevel serverLevel, net.minecraft.world.level.storage.PrimaryLevelData serverLevelData, WorldOptions worldOptions) {
+@@ -976,10 +_,10 @@
+         // CraftBukkit end
+         if (flush) {
+             for (ServerLevel serverLevel : this.getAllLevels()) {
+-                LOGGER.info("ThreadedAnvilChunkStorage ({}): All chunks are saved", serverLevel.getChunkSource().chunkMap.getStorageName());
++                LOGGER.info("ThreadedChunkStorage ({}): All chunks are saved", serverLevel.getChunkSource().chunkMap.getStorageName()); // Canvas - Configurable region format
+             }
+ 
+-            LOGGER.info("ThreadedAnvilChunkStorage: All dimensions are saved");
++            LOGGER.info("ThreadedChunkStorage: All dimensions are saved"); // Canvas - Configurable region format
+         }
+ 
+         return flag;
 @@ -1319,11 +_,7 @@
                  LOGGER.info("*************************************************************************************");
              }

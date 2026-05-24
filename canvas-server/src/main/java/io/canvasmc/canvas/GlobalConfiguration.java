@@ -181,6 +181,12 @@ public class GlobalConfiguration extends Part {
         }
 
         broadcast("Using " + configuration.regionScheduler.defaultTickRate + " as default tick rate", INFO);
+
+        // Apply region format setting
+        io.canvasmc.canvas.region.RegionFormatFactory.setCurrentFormat(configuration.regionFormat);
+        if (configuration.regionFormat != io.canvasmc.canvas.region.EnumRegionFormat.MCA) {
+            broadcast("Using region format: " + configuration.regionFormat.name(), INFO);
+        }
     }
 
     public static GlobalConfiguration getInstance() {
@@ -617,6 +623,23 @@ public class GlobalConfiguration extends Part {
         public boolean cacheClimbingCheckForActivation = false;
         public boolean optimizeSunBurnTick = false;
     }
+
+    {
+        option("regionFormat")
+            .docs(
+                Style.wrap(
+                    "The region file format used for world storage. Linear format reduces disk usage by ~50%",
+                    "and improves chunk loading/saving speed. MCA is the standard Vanilla Anvil format."
+                ).defineEnum(io.canvasmc.canvas.region.EnumRegionFormat.class, (mode) -> {
+                    return switch (mode) {
+                        case MCA -> "Standard Anvil format (Vanilla default)";
+                        case LINEAR_V2 -> "Linear v2 format - 50% less disk usage, faster I/O";
+                    };
+                })
+            );
+    }
+
+    public io.canvasmc.canvas.region.EnumRegionFormat regionFormat = io.canvasmc.canvas.region.EnumRegionFormat.MCA;
 
     public Chat chat = new Chat();
     public static class Chat extends Part {
