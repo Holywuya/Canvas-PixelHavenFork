@@ -1,0 +1,49 @@
+--- a/net/minecraft/network/Utf8String.java
++++ b/net/minecraft/network/Utf8String.java
+@@ -30,22 +_,38 @@
+         }
+     }
+ 
+-    public static void write(ByteBuf buffer, CharSequence string, int maxLength) {
+-        if (string.length() > maxLength) {
+-            throw new EncoderException("String too big (was " + string.length() + " characters, max " + maxLength + ")");
++    public static void write(final ByteBuf output, final CharSequence value, final int maxLength) {
++        // Luminol start - Krypton optimizations
++        if (true) {
++            if (value.length() > maxLength) {
++                throw new EncoderException("String too big (was " + value.length() + " characters, max " + maxLength + ")");
++            }
++            int utf8Bytes = ByteBufUtil.utf8Bytes(value);
++            int maxBytesPermitted = ByteBufUtil.utf8MaxBytes(maxLength);
++            if (utf8Bytes > maxBytesPermitted) {
++                throw new EncoderException("String too big (was " + utf8Bytes + " bytes encoded, max " + maxBytesPermitted + ")");
++            } else {
++                VarInt.write(output, utf8Bytes);
++                output.writeCharSequence(value, StandardCharsets.UTF_8);
++            }
++            return;
++        }
++        // Luminol end
++        if (value.length() > maxLength) {
++            throw new EncoderException("String too big (was " + value.length() + " characters, max " + maxLength + ")");
+         } else {
+-            int i = ByteBufUtil.utf8MaxBytes(string);
+-            ByteBuf byteBuf = buffer.alloc().buffer(i);
++            int i = ByteBufUtil.utf8MaxBytes(value);
++            ByteBuf byteBuf = output.alloc().buffer(i);
+ 
+             try {
+-                int i1 = ByteBufUtil.writeUtf8(byteBuf, string);
++                int i1 = ByteBufUtil.writeUtf8(byteBuf, value);
+                 int i2 = ByteBufUtil.utf8MaxBytes(maxLength);
+                 if (i1 > i2) {
+                     throw new EncoderException("String too big (was " + i1 + " bytes encoded, max " + i2 + ")");
+                 }
+ 
+-                VarInt.write(buffer, i1);
+-                buffer.writeBytes(byteBuf);
++                VarInt.write(output, i1);
++                output.writeBytes(byteBuf);
+             } finally {
+                 byteBuf.release();
+             }
