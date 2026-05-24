@@ -463,6 +463,17 @@ public class GlobalConfiguration extends Part {
                     "The disconnect reason sent to the client when the server attempted to send a packet that",
                     "exceeded the max packet size"
                 );
+
+            option("particleThrottling")
+                .docs(
+                    "Throttles particle packets sent to each player per tick. When enabled, particle packets",
+                    "beyond the configured limit per tick are silently dropped. Reduces network overhead on",
+                    "servers with heavy particle usage"
+                );
+            option("particleThrottleLimit")
+                .docs(
+                    "Maximum particle packets allowed per player per tick when particle throttling is enabled"
+                ).greaterThan(0.0F);
         }
 
         public boolean filterVelocityPacket = false;
@@ -474,6 +485,8 @@ public class GlobalConfiguration extends Part {
         public boolean disablePaperPacketOverflowContainerFix = false;
         public String packetTooLargeDisconnectReason = "Clientbound packet exceeded max packet bytes";
         public boolean purpurAlternativeKeepalive = false;
+        public boolean particleThrottling = false;
+        public int particleThrottleLimit = 20;
     }
 
     {

@@ -1,5 +1,57 @@
 --- a/net/minecraft/world/entity/npc/villager/Villager.java
 +++ b/net/minecraft/world/entity/npc/villager/Villager.java
+@@ -167,6 +_,10 @@
+         SensorType.SECONDARY_POIS,
+         SensorType.GOLEM_DETECTED
+     );
++    // Canvas start - VillagerSmartHibernation (ported from Kitin)
++    public boolean canvas$isHibernating = false;
++    // Canvas end - VillagerSmartHibernation
++
+     public static final Map<MemoryModuleType<GlobalPos>, BiPredicate<Villager, Holder<PoiType>>> POI_MEMORIES = ImmutableMap.of(
+         MemoryModuleType.HOME,
+         (villager, poiType) -> poiType.is(PoiTypes.HOME),
+@@ -293,6 +_,15 @@
+     }
+     protected void customServerAiStep(ServerLevel level, final boolean inactive) {
+         // Paper end - EAR 2
++        // Canvas start - VillagerSmartHibernation (ported from Kitin)
++        if (io.canvasmc.canvas.WorldConfig.forWorld(level).entities.villagers.villagerSmartHibernation) {
++            if (canvas$checkHibernation(level)) {
++                this.canvas$isHibernating = true;
++                return; // Skip all AI processing for enclosed, non-trading villagers
++            }
++            this.canvas$isHibernating = false;
++        }
++        // Canvas end - VillagerSmartHibernation
+         if (!inactive) this.getBrain().tick(level, this); // Paper - EAR 2
+         if (this.assignProfessionWhenSpawned) {
+             this.assignProfessionWhenSpawned = false;
+@@ -331,6 +_,24 @@
+         super.customServerAiStep(level);
+     }
+ 
++    // Canvas start - VillagerSmartHibernation (ported from Kitin)
++    /**
++     * Checks if this villager should hibernate: enclosed by solid blocks on all 6 sides and not trading.
++     * Hibernating villagers skip brain tick and other AI processing to save performance.
++     */
++    private boolean canvas$checkHibernation(ServerLevel level) {
++        if (this.isTrading()) return false;
++        BlockPos pos = this.blockPosition();
++        // Check all 6 axis-aligned neighbors for solid blocks
++        return level.getBlockState(pos.above()).isSolid()
++            && level.getBlockState(pos.below()).isSolid()
++            && level.getBlockState(pos.north()).isSolid()
++            && level.getBlockState(pos.south()).isSolid()
++            && level.getBlockState(pos.east()).isSolid()
++            && level.getBlockState(pos.west()).isSolid();
++    }
++    // Canvas end - VillagerSmartHibernation
++
+     @Override
+     public void tick() {
+         super.tick();
 @@ -851,7 +_,15 @@
  
      private int countFoodPointsInInventory() {

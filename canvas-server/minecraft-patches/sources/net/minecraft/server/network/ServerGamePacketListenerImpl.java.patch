@@ -1,5 +1,29 @@
 --- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -328,6 +_,23 @@
+     public final Long disconnectTicketId = Long.valueOf(DISCONNECT_TICKET_ID_GENERATOR.getAndIncrement());
+     // Folia end - region threading
+ 
++    // Canvas start - particle throttling
++    private int canvas$particlePacketCount = 0;
++    // Canvas end - particle throttling
++
++    @Override
++    public void send(Packet<?> packet) {
++        if (io.canvasmc.canvas.GlobalConfiguration.getInstance().networking.particleThrottling
++            && packet instanceof net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket) {
++            if (this.canvas$particlePacketCount >= io.canvasmc.canvas.GlobalConfiguration.getInstance().networking.particleThrottleLimit) {
++                return;
++            }
++            this.canvas$particlePacketCount++;
++        }
++        super.send(packet);
++    }
++    // Canvas end - particle throttling
++
+     public ServerGamePacketListenerImpl(MinecraftServer server, Connection connection, ServerPlayer player, CommonListenerCookie cookie) {
+         super(server, connection, cookie);
+         this.restartClientLoadTimerAfterRespawn();
 @@ -335,7 +_,7 @@
          this.player = player;
          player.connection = this;
@@ -9,6 +33,16 @@
          this.chatMessageChain = new FutureChain(server.chatExecutor); // CraftBukkit - async chat
          this.tickEndEvent = new io.papermc.paper.event.packet.ClientTickEndEvent(player.getBukkitEntity()); // Paper - add client tick end event
          this.playerGameConnection =  new io.papermc.paper.connection.PaperPlayerGameConnection(this); // Paper
+@@ -355,6 +_,9 @@
+ 
+     @Override
+     public void tick() {
++        // Canvas start - particle throttling
++        this.canvas$particlePacketCount = 0;
++        // Canvas end - particle throttling
+         // Folia start - region threading
+         this.keepConnectionAlive();
+         if (this.processedDisconnect || this.player.wonGame) {
 @@ -1817,11 +_,15 @@
      private boolean hasNewCollision(final ServerLevel level, final Entity entity, final AABB oldBox, final AABB newBox) {
          final List<AABB> collisionsBB = new java.util.ArrayList<>();

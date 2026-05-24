@@ -442,10 +442,20 @@ public class WorldConfig extends Part {
                     .docs("Whether the server should allow Villagers to load unloaded chunks for Villagers to locate POIs");
             }
 
+            {
+                option("villagerSmartHibernation")
+                    .docs(
+                        "When enabled, villagers that are fully enclosed by solid blocks and not trading",
+                        "will skip brain ticking and other AI processing. Can significantly reduce tick",
+                        "time for villager-based farms with many enclosed villagers."
+                    );
+            }
+
             public boolean villagerAcquirePoiTasksLoadChunks = true;
             public boolean reduceJobSitePoiSearchRange = false;
             public boolean reduceHomePoiSearchRange = false;
             public boolean reduceMeetingPointPoiSearchRange = false;
+            public boolean villagerSmartHibernation = false;
         }
     }
 
@@ -505,10 +515,18 @@ public class WorldConfig extends Part {
                         "\"required-player-range\", \"spawn-range\""
                     )
                 );
+
+            option("optimizeDropperTransfer")
+                .docs(
+                    "When a dropper pushes items into a container, pre-checks for an available slot.",
+                    "If no slot is available, returns early (circuit breaker) and uses zero-copy item move",
+                    "to avoid the event system overhead. Improves performance for hopper-heavy builds."
+                );
         }
 
         public boolean chestsCanOpenWithFullBlockAbove = false;
         public boolean fullChiseledBookShelvesCountAsValidEnchantPowerSources = false;
+        public boolean optimizeDropperTransfer = false;
 
         public Spawner spawner = new Spawner();
         public static class Spawner extends Part {
