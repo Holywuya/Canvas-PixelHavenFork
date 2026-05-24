@@ -167,6 +167,17 @@ Config.INSTANCE.projectiles.*         → WorldConfig.getDefaults().entities.pro
 - **上游 Canvas**：`upstream` → `https://github.com/CraftCanvasMC/Canvas.git`（`ver/26.1.2`）
 - **Folia 基础**：`foliaCommit = 3ef0ba66b20599d24f235ac795865047c29c5eb4`
 
+### 提交规则（强制）
+
+**每完成一项任务后，必须立即提交 git。** 不要等到所有工作完成再提交。
+
+- 完成一个功能/修复 → 立即 `git add` + `git commit`
+- 完成一个补丁移植 → 立即提交
+- 完成一次构建验证 → 提交
+- 不要积累大量未提交的更改
+
+原因：项目经常遇到网络中断、缓存损坏、补丁冲突等问题。未提交的工作一旦丢失就无法恢复。
+
 ## 注意事项
 
 - 中国大陆构建需要配置阿里云 Maven 镜像（已在 `build.gradle.kts` 和 `settings.gradle.kts` 中配置）
