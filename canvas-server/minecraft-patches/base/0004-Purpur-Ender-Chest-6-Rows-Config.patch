@@ -14,7 +14,7 @@ index f67598c63cf957efd518610a301ebe4ea3c259ec..f24c0d5157d962ba6b9146e8afd0ae6e
          } // Paper - Add sendOpLevel API
 +        // Purpur start - Barrels and enderchests 6 rows
 +
-+        if (io.canvasmc.canvas.GlobalConfiguration.getInstance().purpurContainers.enderChestSixRows && io.canvasmc.canvas.GlobalConfiguration.getInstance().purpurContainers.enderChestPermissionRows) {
++        if (io.canvasmc.canvas.Config.INSTANCE.containers.enderChestSixRows && io.canvasmc.canvas.Config.INSTANCE.containers.enderChestPermissionRows) {
 +            org.bukkit.craftbukkit.entity.CraftHumanEntity bukkit = player.getBukkitEntity();
 +            if (bukkit.hasPermission("purpur.enderchest.rows.six")) {
 +                player.sixRowEnderchestSlotCount = 54;
@@ -92,7 +92,7 @@ index 9749909b8253b432bb2f7fba2cd8ff17a8579b30..9fef1faf4e6eb148d1b49426373de961
  
      public PlayerEnderChestContainer(Player owner) {
 -        super(27);
-+        super(io.canvasmc.canvas.GlobalConfiguration.getInstance().purpurContainers.enderChestSixRows ? 54 : 27); // Purpur - Barrels and enderchests 6 rows
++        super(io.canvasmc.canvas.Config.INSTANCE.containers.enderChestSixRows ? 54 : 27); // Purpur - Barrels and enderchests 6 rows
          this.owner = owner;
          // CraftBukkit end
      }
@@ -117,7 +117,7 @@ index 383e8285d366c7f594b0b4ff55b367970c9b69e4..9c61abf2092afe1d39ee41033c4452c4
                      new SimpleMenuProvider(
 -                        (containerId, playerInventory, player1) -> ChestMenu.threeRows(containerId, playerInventory, enderChestInventory), CONTAINER_TITLE
 -                    )
-+                        (containerId, playerInventory, player1) -> io.canvasmc.canvas.GlobalConfiguration.getInstance().purpurContainers.enderChestSixRows ? getEnderChestSixRows(containerId, playerInventory, player, enderChestInventory) : ChestMenu.threeRows(containerId, playerInventory, enderChestInventory), CONTAINER_TITLE
++                        (containerId, playerInventory, player1) -> io.canvasmc.canvas.Config.INSTANCE.containers.enderChestSixRows ? getEnderChestSixRows(containerId, playerInventory, player, enderChestInventory) : ChestMenu.threeRows(containerId, playerInventory, enderChestInventory), CONTAINER_TITLE
 +                    ) // Purpur - Barrels and enderchests 6 rows
                  ).isPresent()) {
                  // Paper end - Fix InventoryOpenEvent cancellation - moved up;
@@ -128,7 +128,7 @@ index 383e8285d366c7f594b0b4ff55b367970c9b69e4..9c61abf2092afe1d39ee41033c4452c4
  
 +    // Purpur start - Barrels and enderchests 6 rows
 +    private ChestMenu getEnderChestSixRows(int syncId, net.minecraft.world.entity.player.Inventory inventory, Player player, PlayerEnderChestContainer playerEnderChestContainer) {
-+        if (io.canvasmc.canvas.GlobalConfiguration.getInstance().purpurContainers.enderChestPermissionRows) {
++        if (io.canvasmc.canvas.Config.INSTANCE.containers.enderChestPermissionRows) {
 +            org.bukkit.craftbukkit.entity.CraftHumanEntity bukkitPlayer = player.getBukkitEntity();
 +            if (bukkitPlayer.hasPermission("purpur.enderchest.rows.six")) {
 +                player.sixRowEnderchestSlotCount = 54;
@@ -168,7 +168,7 @@ index 75c09a2079c89f9346391abdd01ef8790b9cbb13..a8c95737f3bdaea24b5894b399a39b6f
      private static final Component DEFAULT_NAME = Component.translatable("container.barrel");
 -    private NonNullList<ItemStack> items = NonNullList.withSize(27, ItemStack.EMPTY);
 +    // Purpur start - Barrels and enderchests 6 rows
-+    private NonNullList<ItemStack> items = NonNullList.withSize(switch (io.canvasmc.canvas.GlobalConfiguration.getInstance().purpurContainers.barrelRows) {
++    private NonNullList<ItemStack> items = NonNullList.withSize(switch (io.canvasmc.canvas.Config.INSTANCE.containers.barrelRows) {
 +        case 6 -> 54;
 +        case 5 -> 45;
 +        case 4 -> 36;
@@ -187,7 +187,7 @@ index 75c09a2079c89f9346391abdd01ef8790b9cbb13..a8c95737f3bdaea24b5894b399a39b6f
      public int getContainerSize() {
 -        return 27;
 +        // Purpur start - Barrels and enderchests 6 rows
-+        return switch (io.canvasmc.canvas.GlobalConfiguration.getInstance().purpurContainers.barrelRows) {
++        return switch (io.canvasmc.canvas.Config.INSTANCE.containers.barrelRows) {
 +            case 6 -> 54;
 +            case 5 -> 45;
 +            case 4 -> 36;
@@ -205,7 +205,7 @@ index 75c09a2079c89f9346391abdd01ef8790b9cbb13..a8c95737f3bdaea24b5894b399a39b6f
      protected AbstractContainerMenu createMenu(int id, Inventory player) {
 -        return ChestMenu.threeRows(id, player, this);
 +        // Purpur start - Barrels and enderchests 6 rows
-+        return switch (io.canvasmc.canvas.GlobalConfiguration.getInstance().purpurContainers.barrelRows) {
++        return switch (io.canvasmc.canvas.Config.INSTANCE.containers.barrelRows) {
 +            case 6 -> ChestMenu.sixRows(id, player, this);
 +            case 5 -> ChestMenu.fiveRows(id, player, this);
 +            case 4 -> ChestMenu.fourRows(id, player, this);

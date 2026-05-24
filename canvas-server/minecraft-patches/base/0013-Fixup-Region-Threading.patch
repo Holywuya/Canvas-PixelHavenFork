@@ -175,7 +175,7 @@ index 3c646d9d594cbead75a30150b7e03124e2beaaf8..6a39eba0237c378ef612b10539746ee4
 -    public static final int TICK_RATE = 20;
 -    public static final long TIME_BETWEEN_TICKS = 1_000_000_000L / TICK_RATE; // ns
 +    // Canvas start - region threading
-+    private static final float DEFAULT_TICK_RATE = io.canvasmc.canvas.GlobalConfiguration.getInstance().regionScheduler.defaultTickRate;
++    private static final float DEFAULT_TICK_RATE = io.canvasmc.canvas.Config.INSTANCE.scheduler.defaultTickRate;
 +    private static final long DEFAULT_TICK_TIME_NANOS = (long) (1_000_000_000 / DEFAULT_TICK_RATE);
 +
 +    private static float CURRENT_TICK_RATE = DEFAULT_TICK_RATE;

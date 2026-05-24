@@ -55,7 +55,7 @@
      @DontObfuscate
      public String getServerModName() {
 -        return io.papermc.paper.ServerBuildInfo.buildInfo().brandName(); // Paper
-+        return io.canvasmc.canvas.GlobalConfiguration.getInstance().serverModName; // Canvas - Use configurable server branding
++        return io.canvasmc.canvas.Config.INSTANCE.serverModName; // Canvas - Use configurable server branding
      }
  
      public SystemReport fillSystemReport(SystemReport systemReport) {
@@ -65,7 +65,7 @@
  
 +    // Canvas start - no chat reports
 +    public boolean canvas$ncrEnforceSecureProfile() {
-+        if (io.canvasmc.canvas.GlobalConfiguration.getInstance().chat.disableChatReporting) return false; // NCR doesn't require secure profile
++        if (io.canvasmc.canvas.Config.INSTANCE.enableNoChatReports) return false; // NCR doesn't require secure profile
 +        return this.enforceSecureProfile();
 +    }
 +

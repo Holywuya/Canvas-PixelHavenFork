@@ -5,7 +5,7 @@
      public static final float BASE_JUMP_POWER = 0.42F;
      protected static final float DEFAULT_KNOCKBACK = 0.4F;
 -    protected static final int INVULNERABLE_DURATION = 20;
-+    protected static final int INVULNERABLE_DURATION = io.canvasmc.canvas.WorldConfig.getDefaults().combat.invulnerabilityTicks; // Canvas - combat configs
++    protected static final int INVULNERABLE_DURATION = io.canvasmc.canvas.Config.INSTANCE.combat.invulnerabilityTicks; // Canvas - combat configs
      private static final double MAX_LINE_OF_SIGHT_TEST_RANGE = 128.0;
      protected static final int LIVING_ENTITY_FLAG_IS_USING = 1;
      protected static final int LIVING_ENTITY_FLAG_OFF_HAND = 2;
@@ -22,7 +22,7 @@
              this.onChangedBlock(serverLevel, pos);
              double d = Math.max(0, Mth.floor(this.calculateFallPower(this.fallDistance)));
 -            if (d > 0.0 && !state.isAir()) {
-+            if (d > 0.0 && !(state.isAir() || (io.canvasmc.canvas.GlobalConfiguration.getInstance().vanillaFixes.mc30391 && (this instanceof net.minecraft.world.entity.animal.chicken.Chicken || this instanceof net.minecraft.world.entity.monster.Blaze || this instanceof WitherBoss)))) { // Canvas - MC-30391
++            if (d > 0.0 && !(state.isAir() || (io.canvasmc.canvas.Config.INSTANCE.fixes.mc30391 && (this instanceof net.minecraft.world.entity.animal.chicken.Chicken || this instanceof net.minecraft.world.entity.monster.Blaze || this instanceof WitherBoss)))) { // Canvas - MC-30391
                  double x = this.getX();
                  double y1 = this.getY();
                  double z = this.getZ();
@@ -30,7 +30,7 @@
                  double d1 = Math.min(0.2F + d / 15.0, 2.5);
                  int i = (int)(150.0 * d1);
                  // CraftBukkit start - visibility api
-+                if (!io.canvasmc.canvas.WorldConfig.getDefaults().visuals.particles.disableFallParticles) { // Canvas - particles config
++                if (!io.canvasmc.canvas.Config.INSTANCE.particles.disableFallParticles) { // Canvas - particles config
                  if (this instanceof ServerPlayer) {
                      serverLevel.sendParticlesSource((ServerPlayer) this, new BlockParticleOption(ParticleTypes.BLOCK, state), false, false, x, y1, z, i, 0.0, 0.0, 0.0, 0.15F);
                  } else {
@@ -72,7 +72,7 @@
 +    }
 +
 +    public boolean shouldCheckForSuffocation() {
-+        return !io.canvasmc.canvas.WorldConfig.getDefaults().enableSuffocationOptimization || (tickCount % 10 == 0 && couldPossiblyBeHurt(1.0F));
++        return !io.canvasmc.canvas.Config.INSTANCE.enableSuffocationOptimization || (tickCount % 10 == 0 && couldPossiblyBeHurt(1.0F));
 +    }
 +    // Pufferfish end
  
@@ -94,7 +94,7 @@
      public boolean broadcastedDeath = false; // Folia - region threading
      protected void tickDeath() {
          this.deathTime++;
-+        if (io.canvasmc.canvas.WorldConfig.getDefaults().combat.removeRedDeathAnimation) this.deathTime = 20; // Canvas - remove red death animation
++        if (io.canvasmc.canvas.Config.INSTANCE.combat.removeRedDeathAnimation) this.deathTime = 20; // Canvas - remove red death animation
          if (this.deathTime >= 20 && !this.level().isClientSide() && !this.isRemoved()) {
              this.level().broadcastEntityEvent(this, EntityEvent.POOF); this.broadcastedDeath = true; // Folia - region threading - death has been broadcasted
              if (!(this instanceof ServerPlayer)) this.remove(Entity.RemovalReason.KILLED, org.bukkit.event.entity.EntityRemoveEvent.Cause.DEATH); // CraftBukkit - add Bukkit remove cause // Folia - region threading - don't remove, we want the tick scheduler to be running
@@ -119,7 +119,7 @@
  
              List<ParticleOptions> list = this.entityData.get(DATA_EFFECT_PARTICLES);
 -            if (!list.isEmpty()) {
-+            if (!list.isEmpty() && !io.canvasmc.canvas.WorldConfig.getDefaults().visuals.particles.disableEffectParticles) { // Canvas - particles config
++            if (!list.isEmpty() && !io.canvasmc.canvas.Config.INSTANCE.particles.disableEffectParticles) { // Canvas - particles config
                  boolean flag = this.entityData.get(DATA_EFFECT_AMBIENCE_ID);
                  int i = this.isInvisible() ? 15 : 4;
                  int i1 = flag ? 5 : 1;
@@ -163,11 +163,11 @@
                  if (this instanceof ServerPlayer && event.getDamage() == 0 && originAmount == 0) return false; // Paper - revert to vanilla damage - players are not affected by damage that is 0 - skip damage if the vanilla damage is 0 and was not modified by plugins in the event.
                  this.lastHurt = amount;
 -                this.invulnerableTime = this.invulnerableDuration; // CraftBukkit - restore use of maxNoDamageTicks
-+                this.invulnerableTime = io.canvasmc.canvas.WorldConfig.getDefaults().combat.invulnerabilityTicks; // CraftBukkit - restore use of maxNoDamageTicks // Canvas - combat configs
++                this.invulnerableTime = io.canvasmc.canvas.Config.INSTANCE.combat.invulnerabilityTicks; // CraftBukkit - restore use of maxNoDamageTicks // Canvas - combat configs
                  // this.actuallyHurt(level, damageSource, amount);
                  // CraftBukkit end
 -                this.hurtDuration = 10;
-+                this.hurtDuration = io.canvasmc.canvas.WorldConfig.getDefaults().combat.invulnerabilityTicks; // Canvas - combat configs
++                this.hurtDuration = io.canvasmc.canvas.Config.INSTANCE.combat.invulnerabilityTicks; // Canvas - combat configs
                  this.hurtTime = this.hurtDuration;
              }
  
@@ -206,7 +206,7 @@
      @Override
      public void animateHurt(float yaw) {
 -        this.hurtDuration = 10;
-+        this.hurtDuration = io.canvasmc.canvas.WorldConfig.getDefaults().combat.invulnerabilityTicks; // Canvas - combat configs
++        this.hurtDuration = io.canvasmc.canvas.Config.INSTANCE.combat.invulnerabilityTicks; // Canvas - combat configs
          this.hurtTime = this.hurtDuration;
      }
  
@@ -215,7 +215,7 @@
          this.walkAnimation.setSpeed(1.5F);
          this.invulnerableTime = this.invulnerableDuration; // Paper - configurable invulnerable duration
 -        this.hurtDuration = 10;
-+        this.hurtDuration = io.canvasmc.canvas.WorldConfig.getDefaults().combat.invulnerabilityTicks; // Canvas - combat configs
++        this.hurtDuration = io.canvasmc.canvas.Config.INSTANCE.combat.invulnerabilityTicks; // Canvas - combat configs
          this.hurtTime = this.hurtDuration;
          SoundEvent hurtSound = this.getHurtSound(damageSource);
          if (hurtSound != null) {
@@ -224,7 +224,7 @@
                  break;
              case 60:
 -                this.makePoofParticles();
-+                if (!io.canvasmc.canvas.WorldConfig.getDefaults().visuals.particles.disableDeathParticles) this.makePoofParticles(); // Canvas - particles config
++                if (!io.canvasmc.canvas.Config.INSTANCE.particles.disableDeathParticles) this.makePoofParticles(); // Canvas - particles config
                  break;
              case 65:
                  this.breakItem(this.getItemBySlot(EquipmentSlot.BODY));
@@ -241,7 +241,7 @@
          }
  
 -        if (f2 > 0.0F) {
-+        if (f2 > 0.0F && (!io.canvasmc.canvas.GlobalConfiguration.getInstance().vanillaFixes.mc136249 || autoSpinAttackTicks == 0)) { // Canvas - MC-136249
++        if (f2 > 0.0F && (!io.canvasmc.canvas.Config.INSTANCE.fixes.mc136249 || autoSpinAttackTicks == 0)) { // Canvas - MC-136249
              f += (0.54600006F - f) * f2;
              f1 += (this.getSpeed() - f1) * f2;
          }
@@ -271,7 +271,7 @@
          }
  
 -        this.pushEntities();
-+        if (io.canvasmc.canvas.WorldConfig.getDefaults().entities.entityCollisionMode.allEntitiesCanBePushed()) this.pushEntities(); // Canvas - entity collision mode config
++        if (io.canvasmc.canvas.Config.INSTANCE.entityCollisionMode.allEntitiesCanBePushed()) this.pushEntities(); // Canvas - entity collision mode config
          // Paper start - Add EntityMoveEvent
          if (((ServerLevel) this.level()).getCurrentWorldData().hasEntityMoveEvent && !(this instanceof Player)) { // Folia - region threading
              if (this.xo != this.getX() || this.yo != this.getY() || this.zo != this.getZ() || this.yRotO != this.getYRot() || this.xRotO != this.getXRot()) {
@@ -288,7 +288,7 @@
  
      protected void pushEntities() {
 +        // Canvas start - only players push config
-+        io.canvasmc.canvas.WorldConfig.Entities.EntityCollisionMode collisionMode = io.canvasmc.canvas.WorldConfig.getDefaults().entities.entityCollisionMode;
++        io.canvasmc.canvas.world.entity.EntityCollisionMode collisionMode = io.canvasmc.canvas.Config.INSTANCE.entityCollisionMode;
 +        if (collisionMode.noCollisions()) {
 +            return;
 +        }
@@ -313,7 +313,7 @@
  
      @Override
      public boolean isCollidable(boolean ignoreClimbing) {
-+        if (this.canvas$fromSpawner && io.canvasmc.canvas.WorldConfig.getDefaults().blocks.spawner.noCollisions) return false; // Canvas - spawner configs
++        if (this.canvas$fromSpawner && io.canvasmc.canvas.Config.INSTANCE.spawner.noCollisions) return false; // Canvas - spawner configs
          return this.isAlive() && !this.isSpectator() && (ignoreClimbing || !this.onClimbable()) && this.collides; // CraftBukkit
          // Paper end - Climbing should not bypass cramming gamerule
      }
@@ -325,7 +325,7 @@
 +            if (this.isDeadOrDying()) {
 +                float halfedRandom = this.random.nextFloat() * 0.5F;
 +                float piRandom = this.random.nextFloat() * (float) (Math.PI * 2);
-+                double factor = io.canvasmc.canvas.WorldConfig.getDefaults().entities.itemEntities.itemEntityVelocityOnDeathFactor;
++                double factor = io.canvasmc.canvas.Config.INSTANCE.itemEntitySpreadFactor;
 +                itemEntity.setDeltaMovement(
 +                    (-Mth.sin(piRandom) * halfedRandom) * factor,
 +                    0.2F * factor,

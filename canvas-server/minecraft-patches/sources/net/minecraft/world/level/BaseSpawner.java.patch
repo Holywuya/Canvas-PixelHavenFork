@@ -7,16 +7,16 @@
 -    public int minSpawnDelay = 200;
 -    public int maxSpawnDelay = 800;
 -    public int spawnCount = 4;
-+    public int minSpawnDelay = io.canvasmc.canvas.WorldConfig.getDefaults().blocks.spawner.minSpawnDelay; // Canvas - spawner configs
-+    public int maxSpawnDelay = io.canvasmc.canvas.WorldConfig.getDefaults().blocks.spawner.maxSpawnDelay; // Canvas - spawner configs
-+    public int spawnCount = io.canvasmc.canvas.WorldConfig.getDefaults().blocks.spawner.spawnCount; // Canvas - spawner configs
++    public int minSpawnDelay = io.canvasmc.canvas.Config.INSTANCE.spawner.minSpawnDelay; // Canvas - spawner configs
++    public int maxSpawnDelay = io.canvasmc.canvas.Config.INSTANCE.spawner.maxSpawnDelay; // Canvas - spawner configs
++    public int spawnCount = io.canvasmc.canvas.Config.INSTANCE.spawner.spawnCount; // Canvas - spawner configs
      private @Nullable Entity displayEntity;
 -    public int maxNearbyEntities = 6;
 -    public int requiredPlayerRange = 16;
 -    public int spawnRange = 4;
-+    public int maxNearbyEntities = io.canvasmc.canvas.WorldConfig.getDefaults().blocks.spawner.maxNearbyEntities; // Canvas - spawner configs
-+    public int requiredPlayerRange = io.canvasmc.canvas.WorldConfig.getDefaults().blocks.spawner.requiredPlayerRange; // Canvas - spawner configs
-+    public int spawnRange = io.canvasmc.canvas.WorldConfig.getDefaults().blocks.spawner.spawnRange; // Canvas - spawner configs
++    public int maxNearbyEntities = io.canvasmc.canvas.Config.INSTANCE.spawner.maxNearbyEntities; // Canvas - spawner configs
++    public int requiredPlayerRange = io.canvasmc.canvas.Config.INSTANCE.spawner.requiredPlayerRange; // Canvas - spawner configs
++    public int spawnRange = io.canvasmc.canvas.Config.INSTANCE.spawner.spawnRange; // Canvas - spawner configs
      private int tickDelay = 0; // Paper - Configurable mob spawner tick rate
  
      public void setEntityId(EntityType<?> type, @Nullable Level level, RandomSource random, BlockPos pos) {
@@ -34,7 +34,7 @@
                              }
  
 -                            int size = level.getEntities(
-+                            int size = io.canvasmc.canvas.WorldConfig.getDefaults().blocks.spawner.disableMaxNearbyEntitiesCheck ? Integer.MIN_VALUE : level.getEntities( // Canvas - spawner configs
++                            int size = io.canvasmc.canvas.Config.INSTANCE.spawner.disableMaxNearbyEntitiesCheck ? Integer.MIN_VALUE : level.getEntities( // Canvas - spawner configs
                                      EntityTypeTest.forExactClass(entity.getClass()),
                                      new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1).inflate(this.spawnRange),
                                      EntitySelector.NO_SPECTATORS

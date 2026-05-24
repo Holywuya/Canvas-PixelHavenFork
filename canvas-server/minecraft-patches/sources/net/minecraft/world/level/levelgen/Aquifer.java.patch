@@ -265,7 +265,7 @@
              int i6 = gridY(i5 + 12) - -1;
              this.skipSamplingAboveY = fromGridY(i6, 11) - 1;
 +            // Canvas start - optimize aquifer
-+            if (io.canvasmc.canvas.GlobalConfiguration.getInstance().chunkSystem.optimizeAquifer) {
++            if (io.canvasmc.canvas.Config.INSTANCE.chunks.optimizeAquifer) {
 +                if (this.aquiferLocationCache.length % (this.gridSizeX * this.gridSizeZ) != 0) {
 +                    throw new AssertionError("Array length");
 +                }
@@ -310,7 +310,7 @@
          @Override
          public @Nullable BlockState computeSubstance(DensityFunction.FunctionContext context, double substance) {
 +            // Canvas start - optimize aquifer
-+            if (io.canvasmc.canvas.GlobalConfiguration.getInstance().chunkSystem.optimizeAquifer) {
++            if (io.canvasmc.canvas.Config.INSTANCE.chunks.optimizeAquifer) {
 +                int i = context.blockX();
 +                int j = context.blockY();
 +                int k = context.blockZ();
@@ -341,7 +341,7 @@
          ) {
 +            // Canvas start - optimize aquifer
 +            // DensityFunction.NoisePos pos, MutableDouble mutableDouble, AquiferSampler.FluidLevel fluidLevel, AquiferSampler.FluidLevel fluidLevel2
-+            if (io.canvasmc.canvas.GlobalConfiguration.getInstance().chunkSystem.optimizeAquifer) {
++            if (io.canvasmc.canvas.Config.INSTANCE.chunks.optimizeAquifer) {
 +                int i = context.blockY();
 +                BlockState blockState = firstFluid.at(i);
 +                BlockState blockState2 = secondFluid.at(i);
@@ -368,7 +368,7 @@
  
          private int computeSurfaceLevel(int x, int y, int z, Aquifer.FluidStatus fluidStatus, int maxSurfaceLevel, boolean fluidPresent) {
 +            // Canvas start - optimize aquifer
-+            if (io.canvasmc.canvas.GlobalConfiguration.getInstance().chunkSystem.optimizeAquifer) {
++            if (io.canvasmc.canvas.Config.INSTANCE.chunks.optimizeAquifer) {
 +                DensityFunction.SinglePointContext unblendedNoisePos = new DensityFunction.SinglePointContext(x, y, z);
 +                double d;
 +                double e;
@@ -403,7 +403,7 @@
  
          private BlockState computeFluidType(int x, int y, int z, Aquifer.FluidStatus fluidStatus, int surfaceLevel) {
 +            // Canvas start - optimize aquifer
-+            if (io.canvasmc.canvas.GlobalConfiguration.getInstance().chunkSystem.optimizeAquifer) {
++            if (io.canvasmc.canvas.Config.INSTANCE.chunks.optimizeAquifer) {
 +                BlockState blockState = fluidStatus.fluidType;
 +                if (surfaceLevel <= -10 && surfaceLevel != DimensionType.WAY_BELOW_MIN_Y && fluidStatus.fluidType != Blocks.LAVA.defaultBlockState()) {
 +                    int k = x >> 6; // floorDiv(blockX, 64)

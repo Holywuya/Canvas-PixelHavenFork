@@ -31,7 +31,7 @@ index 039bf725bba8ea55e9dd40f061381d03a0113b99..ac848146197006953d2f7ccb71f390fc
 +                    final RegionizedWorldData worldData = region.regioniser.world.worldRegionData.get();
 +                    for (final ServerPlayer localPlayer : worldData.getLocalPlayers()) {
 +                        // if pearl duplication fix is enabled, remove the pearl
-+                        localPlayer.savePearls(io.canvasmc.canvas.GlobalConfiguration.getInstance().vanillaFixes.pearlDuplication);
++                        localPlayer.savePearls(io.canvasmc.canvas.Config.INSTANCE.fixes.pearlDuplication);
 +                    }
 +                } catch (Throwable thrown) {
 +                    LOGGER.error("Failed to save pearls for region around chunk " + center + " in world '" + region.regioniser.world.getWorld().getName() + "'", thrown);
@@ -134,13 +134,13 @@ index ec8b437add9bc462d0c0258e9ff55a0c32df5bbc..8b013e8dc92ddb0d8f42a5cfe3c9b9e9
  
      public void registerEnderPearl(ThrownEnderpearl enderPearl) {
 -        //this.enderPearls.add(enderPearl); // Folia - region threading - do not track ender pearls
-+        if (!io.canvasmc.canvas.GlobalConfiguration.getInstance().restoreVanillaEnderPearlBehavior) return; // Canvas - restore vanilla ender pearl behavior
++        if (!io.canvasmc.canvas.Config.INSTANCE.restoreVanillaEnderPearlBehavior) return; // Canvas - restore vanilla ender pearl behavior
 +        this.enderPearls.add(enderPearl);
      }
  
      public void deregisterEnderPearl(ThrownEnderpearl enderPearl) {
 -        //this.enderPearls.remove(enderPearl); // Folia - region threading - do not track ender pearls
-+        if (!io.canvasmc.canvas.GlobalConfiguration.getInstance().restoreVanillaEnderPearlBehavior) return; // Canvas - restore vanilla ender pearl behavior
++        if (!io.canvasmc.canvas.Config.INSTANCE.restoreVanillaEnderPearlBehavior) return; // Canvas - restore vanilla ender pearl behavior
 +        this.enderPearls.remove(enderPearl);
      }
  

@@ -70,7 +70,7 @@
 -    }
 +            // Canvas start - fix commands with region threading
 +            EXECUTOR.queue(() -> {
-+                RandomSource fasterRandom = io.canvasmc.canvas.GlobalConfiguration.createFastRandom() ?
++                RandomSource fasterRandom = io.canvasmc.canvas.Config.ENABLE_FASTER_RANDOM ?
 +                    new io.canvasmc.canvas.util.FasterRandomSource(net.minecraft.world.level.levelgen.RandomSupport.generateUniqueSeed()) :
 +                    new ca.spottedleaf.moonrise.common.util.SimpleThreadUnsafeRandom(net.minecraft.world.level.levelgen.RandomSupport.generateUniqueSeed());
 +                // Note: createInitialPositions *is* thread-safe, and this can

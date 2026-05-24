@@ -4,7 +4,7 @@
      }
  
      protected static boolean hasSufficientLight(LevelReader level, BlockPos pos) {
-+        if (io.canvasmc.canvas.WorldConfig.getDefaults().farming.cropsIgnoreLightCheck) return true; // Canvas - crops ignore light check config
++        if (io.canvasmc.canvas.Config.INSTANCE.cropsIgnoreLightCheck) return true; // Canvas - crops ignore light check config
          return level.getRawBrightness(pos, 0) >= 8;
      }
  

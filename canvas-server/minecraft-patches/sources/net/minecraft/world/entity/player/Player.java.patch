@@ -13,7 +13,7 @@
          }
  
 -        this.attackStrengthTicker++;
-+        if (!io.canvasmc.canvas.WorldConfig.getDefaults().combat.disableAttackHitDelay) this.attackStrengthTicker++; // Canvas - combat configs
++        if (!io.canvasmc.canvas.Config.INSTANCE.combat.disableAttackHitDelay) this.attackStrengthTicker++; // Canvas - combat configs
          this.itemSwapTicker++;
          ItemStack mainHandItem = this.getMainHandItem();
          if (!ItemStack.matches(this.lastItemInMainHand, mainHandItem)) {
@@ -48,11 +48,11 @@
                      f += weaponItem.getItem().getAttackDamageBonus(target, f, damageSource);
                      boolean flag2 = flag && this.canCriticalAttack(target);
                      flag2 = flag2 && !this.level().paperConfig().entities.behavior.disablePlayerCrits; // Paper - Toggleable player crits
-+                    flag2 = flag2 && (!io.canvasmc.canvas.WorldConfig.getDefaults().combat.disableCritsWhileSprinting || !this.isSprinting()); // Canvas - combat configs
++                    flag2 = flag2 && (!io.canvasmc.canvas.Config.INSTANCE.combat.disableCritsWhileSprinting || !this.isSprinting()); // Canvas - combat configs
                      if (flag2) {
                          damageSource = damageSource.critical(); // Paper - critical damage API
 -                        f *= 1.5F;
-+                        f *= io.canvasmc.canvas.WorldConfig.getDefaults().combat.criticalHitMultiplier; // Canvas - combat configs
++                        f *= io.canvasmc.canvas.Config.INSTANCE.combat.criticalHitMultiplier; // Canvas - combat configs
                      }
  
                      float f2 = f + f1;
@@ -61,7 +61,7 @@
                      if (flag3) {
                          this.causeExtraKnockback(target, this.getKnockback(target, damageSource) + (flag1 ? 0.5F : 0.0F), deltaMovement);
 -                        if (isSweepAttack) {
-+                        if (isSweepAttack && !io.canvasmc.canvas.WorldConfig.getDefaults().combat.disableSweepingEdge) { // Canvas - combat configs
++                        if (isSweepAttack && !io.canvasmc.canvas.Config.INSTANCE.combat.disableSweepingEdge) { // Canvas - combat configs
                              this.doSweepAttack(target, f, damageSource, attackStrengthScale);
                          }
  
@@ -70,7 +70,7 @@
              float f = previousHealth - ((LivingEntity)target).getHealth();
              this.awardStat(Stats.DAMAGE_DEALT, Math.round(f * 10.0F));
 -            if (this.level() instanceof ServerLevel && f > 2.0F) {
-+            if (!io.canvasmc.canvas.WorldConfig.getDefaults().visuals.particles.disableNewCombatParticles && this.level() instanceof ServerLevel && f > 2.0F) { // Canvas - particles config
++            if (!io.canvasmc.canvas.Config.INSTANCE.particles.disableNewCombatParticles && this.level() instanceof ServerLevel && f > 2.0F) { // Canvas - particles config
                  int i = (int)(f * 0.5);
                  ((ServerLevel)this.level())
                      .sendParticles(ParticleTypes.DAMAGE_INDICATOR, target.getX(), target.getY(0.5), target.getZ(), i, 0.1, 0.0, 0.1, 0.2);
@@ -78,7 +78,7 @@
      }
  
      public float getCurrentItemAttackStrengthDelay() {
-+        if (io.canvasmc.canvas.WorldConfig.getDefaults().combat.disableAttackHitDelay) return 0.0F; // Canvas - combat configs
++        if (io.canvasmc.canvas.Config.INSTANCE.combat.disableAttackHitDelay) return 0.0F; // Canvas - combat configs
          return (float)(1.0 / this.getAttributeValue(Attributes.ATTACK_SPEED) * 20.0);
      }
  
@@ -86,7 +86,7 @@
      }
  
      public float getAttackStrengthScale(float adjustTicks) {
-+        if (io.canvasmc.canvas.WorldConfig.getDefaults().combat.disableAttackHitDelay) return 1.0F; // Canvas - combat configs
++        if (io.canvasmc.canvas.Config.INSTANCE.combat.disableAttackHitDelay) return 1.0F; // Canvas - combat configs
          return Mth.clamp((this.attackStrengthTicker + adjustTicks) / this.getCurrentItemAttackStrengthDelay(), 0.0F, 1.0F);
      }
  
