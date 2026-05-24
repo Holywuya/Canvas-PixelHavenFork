@@ -98,24 +98,43 @@ Minecraft 原版 → Paper 补丁 → Folia 补丁 → Canvas 补丁
 
 ### 开发流程
 
+#### 修改 Canvas 自有代码（`canvas-server/src/`、`canvas-api/src/`）
+
+直接编辑文件，然后构建验证即可。这些文件是 git 跟踪的，直接 `git add` + `git commit`。
+
+#### 修改 Minecraft/Paper 源码（`canvas-server/src/minecraft/java/`、`paper-server/src/main/java/`）
+
+这些目录是 `.gitignore` 的，由补丁系统生成。修改后需要通过特殊流程保存到补丁文件中：
+
 ```bash
-# 1. 应用所有补丁（首次或补丁更新后）
+# 1. 应用补丁（生成源码文件）
 ./gradlew applyAllPatches
 
-# 2. 修改源码...
-#    - Canvas 自有代码：直接编辑 canvas-server/src/ 或 canvas-api/src/
-#    - Minecraft 源码：编辑 canvas-server/src/minecraft/java/
-#    - Paper/Folia 代码：编辑 paper-server/src/ 或 folia-server/src/
+# 2. 在生成的源码目录中编辑文件
+#    - Minecraft 源码：canvas-server/src/minecraft/java/
+#    - Paper/Folia 代码：paper-server/src/main/java/
 
-# 3. 重建补丁（将源码变更转为 .patch 文件）
-./gradlew rebuildAllServerPatches
+# 3. 在 worktree 中提交更改（关键步骤！）
+cd canvas-server/src/minecraft/java
+git add -A .
+git commit --fixup=file
 
-# 4. 构建验证
+# 4. rebase 合并 fixup 到 "file" 提交
+git rebase --autosquash HEAD~2
+
+# 5. 回到项目根目录，重建补丁
+cd ../../..
+./gradlew rebuildMinecraftSourcePatches
+
+# 6. 提交补丁文件
+git add canvas-server/minecraft-patches/
+git commit -m "描述你的更改"
+
+# 7. 构建验证
 ./gradlew createMojmapPublisherJar
-
-# 5. 测试启动
-java -Xmx2G -jar canvas-server/build/libs/canvas-paperclip-*.jar --nogui
 ```
+
+**重要：** 直接运行 `rebuildAllServerPatches` 不会捕获未提交到 worktree 的更改。必须先在 worktree 中 `git commit --fixup=file` + `rebuild --autosquash`，然后才能重建补丁。
 
 ### 常用 Gradle 任务
 
