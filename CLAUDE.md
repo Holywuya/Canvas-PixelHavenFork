@@ -4,6 +4,64 @@ Canvas 是一个基于 Folia（Paper 的区域化多线程分支）的 Minecraft
 
 本分支 (`ver/1.21.11`) 是 PixelHaven 维护的 1.21.11 版本 fork，上游 Canvas 主线已迁移到 `ver/26.1.2`。
 
+---
+
+## ⚠️ 开发流程（强制）
+
+### 修改 Canvas 自有代码（`canvas-server/src/`、`canvas-api/src/`）
+
+直接编辑文件，然后构建验证即可。这些文件是 git 跟踪的，直接 `git add` + `git commit`。
+
+### 修改 Minecraft/Paper 源码（`canvas-server/src/minecraft/java/`、`paper-server/src/main/java/`）
+
+这些目录是 `.gitignore` 的，由补丁系统生成。修改后需要通过特殊流程保存到补丁文件中：
+
+```bash
+# 1. 应用补丁（生成源码文件）
+./gradlew applyAllPatches
+
+# 2. 在生成的源码目录中编辑文件
+#    - Minecraft 源码：canvas-server/src/minecraft/java/
+#    - Paper/Folia 代码：paper-server/src/main/java/
+
+# 3. 在 worktree 中提交更改（关键步骤！）
+cd canvas-server/src/minecraft/java
+git add -A .
+git commit --fixup=file
+
+# 4. rebase 合并 fixup 到 "file" 提交
+git rebase --autosquash HEAD~2
+
+# 5. 回到项目根目录，重建补丁
+cd ../../..
+./gradlew rebuildMinecraftSourcePatches
+
+# 6. 提交补丁文件
+git add canvas-server/minecraft-patches/
+git commit -m "描述你的更改"
+
+# 7. 构建验证
+./gradlew createMojmapPublisherJar
+```
+
+**重要：** 
+- 直接运行 `rebuildAllServerPatches` 不会捕获未提交到 worktree 的更改
+- 必须先在 worktree 中 `git commit --fixup=file` + `rebuild --autosquash`，然后才能重建补丁
+- **不要**直接编辑 `.patch` 文件，应通过修改源码 + rebuild 的方式
+
+### 提交规则（强制）
+
+**每完成一项任务后，必须立即提交 git。** 不要等到所有工作完成再提交。
+
+- 完成一个功能/修复 → 立即 `git add` + `git commit`
+- 完成一个补丁移植 → 立即提交
+- 完成一次构建验证 → 提交
+- 不要积累大量未提交的更改
+
+原因：项目经常遇到网络中断、缓存损坏、补丁冲突等问题。未提交的工作一旦丢失就无法恢复。
+
+---
+
 ## 项目架构
 
 ### 补丁系统
@@ -96,46 +154,6 @@ Minecraft 原版 → Paper 补丁 → Folia 补丁 → Canvas 补丁
 
 产物位于 `canvas-server/build/libs/`。
 
-### 开发流程
-
-#### 修改 Canvas 自有代码（`canvas-server/src/`、`canvas-api/src/`）
-
-直接编辑文件，然后构建验证即可。这些文件是 git 跟踪的，直接 `git add` + `git commit`。
-
-#### 修改 Minecraft/Paper 源码（`canvas-server/src/minecraft/java/`、`paper-server/src/main/java/`）
-
-这些目录是 `.gitignore` 的，由补丁系统生成。修改后需要通过特殊流程保存到补丁文件中：
-
-```bash
-# 1. 应用补丁（生成源码文件）
-./gradlew applyAllPatches
-
-# 2. 在生成的源码目录中编辑文件
-#    - Minecraft 源码：canvas-server/src/minecraft/java/
-#    - Paper/Folia 代码：paper-server/src/main/java/
-
-# 3. 在 worktree 中提交更改（关键步骤！）
-cd canvas-server/src/minecraft/java
-git add -A .
-git commit --fixup=file
-
-# 4. rebase 合并 fixup 到 "file" 提交
-git rebase --autosquash HEAD~2
-
-# 5. 回到项目根目录，重建补丁
-cd ../../..
-./gradlew rebuildMinecraftSourcePatches
-
-# 6. 提交补丁文件
-git add canvas-server/minecraft-patches/
-git commit -m "描述你的更改"
-
-# 7. 构建验证
-./gradlew createMojmapPublisherJar
-```
-
-**重要：** 直接运行 `rebuildAllServerPatches` 不会捕获未提交到 worktree 的更改。必须先在 worktree 中 `git commit --fixup=file` + `rebuild --autosquash`，然后才能重建补丁。
-
 ### 常用 Gradle 任务
 
 | 任务 | 说明 |
@@ -147,15 +165,6 @@ git commit -m "描述你的更改"
 | `rebuildServerBasePatches` | 重建 Paper/Folia base 补丁 |
 | `createMojmapPublisherJar` | 构建完整服务器 JAR |
 | `:canvas-server:compileJava` | 仅编译服务端（快速验证） |
-
-### 修改补丁的正确方式
-
-1. `./gradlew applyAllPatches` — 应用补丁到工作目录
-2. 在 `canvas-server/src/minecraft/java/` 或 `paper-server/src/` 中编辑文件
-3. `./gradlew rebuildAllServerPatches` — 从工作目录重新生成 `.patch` 文件
-4. 提交 `.patch` 文件的变更
-
-**不要**直接编辑 `.patch` 文件，应通过修改源码 + rebuild 的方式。
 
 ## 关键配置引用映射
 
@@ -185,17 +194,6 @@ Config.INSTANCE.projectiles.*         → WorldConfig.getDefaults().entities.pro
 - **上游**：`origin` → `https://github.com/Holywuya/Canvas-PixelHavenFork.git`
 - **上游 Canvas**：`upstream` → `https://github.com/CraftCanvasMC/Canvas.git`（`ver/26.1.2`）
 - **Folia 基础**：`foliaCommit = 3ef0ba66b20599d24f235ac795865047c29c5eb4`
-
-### 提交规则（强制）
-
-**每完成一项任务后，必须立即提交 git。** 不要等到所有工作完成再提交。
-
-- 完成一个功能/修复 → 立即 `git add` + `git commit`
-- 完成一个补丁移植 → 立即提交
-- 完成一次构建验证 → 提交
-- 不要积累大量未提交的更改
-
-原因：项目经常遇到网络中断、缓存损坏、补丁冲突等问题。未提交的工作一旦丢失就无法恢复。
 
 ## 注意事项
 
