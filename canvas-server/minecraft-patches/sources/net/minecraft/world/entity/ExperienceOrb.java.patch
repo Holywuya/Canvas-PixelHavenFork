@@ -9,7 +9,9 @@
                  this.setUnderwaterMovement();
              } else if (!flag) {
                  this.applyGravity();
-@@ -243,7 +_,7 @@
+@@ -241,9 +_,9 @@
+     }
+ 
      private void scanForMerges() {
 -        if (this.level() instanceof ServerLevel) {
 +        if (this.level() instanceof ServerLevel && (!io.canvasmc.canvas.WorldConfig.getDefaults().entities.fastOrbs || this.tickCount % 2 == 0)) { // Canvas - fast orbs - reduce scanning frequency
