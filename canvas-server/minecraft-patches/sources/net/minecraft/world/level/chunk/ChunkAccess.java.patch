@@ -43,9 +43,11 @@
 +        return bucket[canvas$sectionIndex(globalX, globalZ)];
 +    }
 +
-+    @Nullable
-+    // Note: if removing a block entity, don't use this, use remove method. The block entity is expected non-null
-+    public BlockEntity canvas$setBlockEntityInBuckets(int globalX, int y, int globalZ, @org.jspecify.annotations.NonNull BlockEntity blockEntity) {
+++    private Map<BlockPos, BlockEntity> canvas$cachedBlockEntityMap = null;
+++
+ +    @Nullable
+ +    // Note: if removing a block entity, don't use this, use remove method. The block entity is expected non-null
+ +    public BlockEntity canvas$setBlockEntityInBuckets(int globalX, int y, int globalZ, @org.jspecify.annotations.NonNull BlockEntity blockEntity) {
 +        if (y < this.canvas$minY || y > this.canvas$maxY) return null;
 +        int sectionIndex = canvas$toSectionIndex(y);
 +        BlockEntity[] bucket = canvas$blockEntitySections[sectionIndex];
@@ -56,16 +58,19 @@
 +        int i = canvas$sectionIndex(globalX, globalZ);
 +        BlockEntity old = bucket[i];
 +        bucket[i] = blockEntity;
+++        this.canvas$cachedBlockEntityMap = null; // Canvas - invalidate cache
 +        return old;
 +    }
 +
 +    public void canvas$removeAll(int y) {
 +        if (y < this.canvas$minY || y > this.canvas$maxY) return;
 +        canvas$blockEntitySections[canvas$toSectionIndex(y)] = null;
+++        this.canvas$cachedBlockEntityMap = null; // Canvas - invalidate cache
 +    }
 +
 +    public void canvas$removeAll() {
 +        java.util.Arrays.fill(canvas$blockEntitySections, null);
+++        this.canvas$cachedBlockEntityMap = null; // Canvas - invalidate cache
 +    }
 +
 +    @Nullable
@@ -77,6 +82,7 @@
 +            int i = canvas$sectionIndex(globalX, globalZ);
 +            BlockEntity removed = bucket[i];
 +            bucket[i] = null;
+++            this.canvas$cachedBlockEntityMap = null; // Canvas - invalidate cache
 +
 +            for (final BlockEntity entry : bucket) {
 +                if (entry != null) return removed;
@@ -153,11 +159,13 @@
 +    }
 +
 +    public Map<BlockPos, BlockEntity> canvas$buildBlockEntityMap() {
+++        if (this.canvas$cachedBlockEntityMap != null) return this.canvas$cachedBlockEntityMap; // Canvas - use cache
 +        Map<BlockPos, BlockEntity> blockEntities = new Object2ObjectOpenHashMap<>();
 +        this.canvas$iterateOverBlockEntities((blockEntity) -> {
 +            blockEntities.put(blockEntity.getBlockPos(), blockEntity);
 +        });
-+        return blockEntities;
+-+        return blockEntities;
+++        return this.canvas$cachedBlockEntityMap = java.util.Collections.unmodifiableMap(blockEntities); // Canvas - cache result
 +    }
 +    // Canvas end - optimize block entity fetching
      protected final LevelHeightAccessor levelHeightAccessor;

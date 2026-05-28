@@ -14,7 +14,11 @@ import io.canvasmc.canvas.util.version.CanvasVersionFetcher;
 import io.papermc.paper.ServerBuildInfo;
 import io.papermc.paper.threadedregions.RegionizedServer;
 import io.papermc.paper.threadedregions.TickRegions;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.CompletableFuture;
 import java.util.random.RandomGeneratorFactory;
 import net.minecraft.ChatFormatting;
@@ -178,6 +182,37 @@ public class GlobalConfiguration extends Part {
         }
 
         broadcast("Using " + configuration.regionScheduler.defaultTickRate + " as default tick rate", INFO);
+
+        // Log Cleaner
+        final Path logsDirectoryPath = Path.of("logs");
+        if (configuration.logs.enableLogCleaner && Files.exists(logsDirectoryPath) && !TickRegions.started) {
+            final Instant now = Instant.now();
+            final Instant adjustedInstantToThresh = now.minus(configuration.logs.length, configuration.logs.unit);
+            final int[] amountRemoved = {0};
+
+            try {
+                java.util.stream.Stream<Path> stream = Files.walk(logsDirectoryPath, 1);
+                stream.filter(p -> !p.equals(logsDirectoryPath)).forEach(path -> {
+                    if (Files.isRegularFile(path)) {
+                        try {
+                            final Instant lastModified = Files.getLastModifiedTime(path).toInstant();
+                            if (lastModified.isBefore(adjustedInstantToThresh) && !path.getFileName().toString().equalsIgnoreCase("latest.log")) {
+                                Files.delete(path);
+                                amountRemoved[0]++;
+                            }
+                        } catch (IOException ioe) {
+                            broadcast("Unable to determine if file " + path.getFileName() + " should be removed because: " + ioe.getMessage(), ERROR);
+                        }
+                    }
+                });
+            } catch (IOException ioe) {
+                broadcast("Failed to walk logs directory: " + ioe.getMessage(), ERROR);
+            }
+
+            if (amountRemoved[0] > 0) {
+                broadcast("Log cleaner removed " + amountRemoved[0] + " old log files", INFO);
+            }
+        }
 
         // Apply region format setting
         io.canvasmc.canvas.region.RegionFormatFactory.setCurrentFormat(configuration.regionFormat);
@@ -645,6 +680,20 @@ public class GlobalConfiguration extends Part {
 
         public boolean disableChatReporting = false;
         public boolean disableChatVerificationOrder = false;
+    }
+
+    public Logs logs = new Logs();
+    public static class Logs extends Part {
+
+        {
+            option("enableLogCleaner").docs("自动删除 \"logs\" 目录中的旧日志文件");
+            option("length").docs("日志文件被标记为删除的时间单位数量");
+            option("unit").docs("用于比较文件年龄与当前时间的时间单位类型");
+        }
+
+        public boolean enableLogCleaner = false;
+        public long length = 30;
+        public ChronoUnit unit = ChronoUnit.DAYS;
     }
 
 }

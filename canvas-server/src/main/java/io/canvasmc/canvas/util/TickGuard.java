@@ -4,12 +4,16 @@ import ca.spottedleaf.moonrise.common.util.EntityUtil;
 import ca.spottedleaf.moonrise.common.util.TickThread;
 import ca.spottedleaf.moonrise.common.util.WorldUtil;
 import io.canvasmc.canvas.GlobalConfiguration;
+import io.papermc.paper.threadedregions.TickRegions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.NonNull;
 
+import java.util.function.BooleanSupplier;
+
+import static ca.spottedleaf.moonrise.common.util.TickThread.getThreadContext;
 import static io.canvasmc.canvas.GlobalConfiguration.LOGGER;
 
 public class TickGuard {
@@ -25,7 +29,7 @@ public class TickGuard {
                 // ensure tick thread first, since that is required, then we check and log
                 ensureIsTickThread(reason);
                 if (!TickThread.isTickThreadFor(level, chunkX, chunkZ)) {
-                    LOGGER.warn("Thread failed main thread check: {}, context={}, world={}, chunk_pos={}", reason, Thread.currentThread().getName(), WorldUtil.getWorldName(level), new ChunkPos(chunkX, chunkZ), new Throwable());
+                    LOGGER.warn("Thread failed main thread check: {}, context={}, world={}, chunk_pos={}", reason, getThreadContext(), WorldUtil.getWorldName(level), new ChunkPos(chunkX, chunkZ), new Throwable());
                 }
             }
             case THROW -> TickThread.ensureTickThread(level, chunkX, chunkZ, reason);
@@ -39,16 +43,23 @@ public class TickGuard {
                 // ensure tick thread first, since that is required, then we check and log
                 ensureIsTickThread(reason);
                 if (!TickThread.isTickThreadFor(entity)) {
-                    LOGGER.warn("Thread failed main thread check: {}, context={}, entity={}", reason, Thread.currentThread().getName(), EntityUtil.dumpEntity(entity), new Throwable());
+                    LOGGER.warn("Thread failed main thread check: {}, context={}, entity={}", reason, getThreadContext(), EntityUtil.dumpEntity(entity), new Throwable());
                 }
             }
             case THROW -> TickThread.ensureTickThread(entity, reason);
         }
     }
 
+    public static void hardThrowIfStarted(final BooleanSupplier isTickThreadFor, final String reason) {
+        if (TickRegions.started && !isTickThreadFor.getAsBoolean()) {
+            LOGGER.error("Thread failed main thread check: {}, context={}", reason, getThreadContext(), new Throwable());
+            throw new IllegalStateException(reason);
+        }
+    }
+
     private static void ensureIsTickThread(final String reason) {
         if (!TickThread.isTickThread()) {
-            LOGGER.error("Thread failed main thread check: {}, context={}", reason, Thread.currentThread().getName(), new Throwable());
+            LOGGER.error("Thread failed main thread check: {}, context={}", reason, getThreadContext(), new Throwable());
             throw new IllegalStateException(reason);
         }
     }

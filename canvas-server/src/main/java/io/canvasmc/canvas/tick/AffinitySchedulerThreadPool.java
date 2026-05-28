@@ -73,8 +73,9 @@ public final class AffinitySchedulerThreadPool extends Scheduler {
     private final boolean enableIntermediateTasks;
     private final Consumer<Throwable> onException;
 
+    private final AtomicInteger nextSteal = new AtomicInteger(0);
+
     private volatile boolean halted;
-    private int nextSteal = 0;
 
     public AffinitySchedulerThreadPool(
         final int threads,
@@ -283,11 +284,7 @@ public final class AffinitySchedulerThreadPool extends Scheduler {
             best = globalHead;
         }
 
-        if (nextSteal >= runners.length) {
-            nextSteal = 0;
-        }
-
-        final TickThreadRunner stealingFrom = runners[nextSteal++];
+        final TickThreadRunner stealingFrom = runners[nextSteal.getAndUpdate(v -> (v + 1) % runners.length)];
 
         if (stealingFrom != runner) {
             final ScheduledState stealCandidate = stealingFrom.localQueue.peek();
