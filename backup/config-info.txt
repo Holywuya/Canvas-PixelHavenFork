@@ -1,0 +1,3 @@
+foliaCommit =  3ef0ba66b20599d24f235ac795865047c29c5eb4
+upstream = 
+origin = https://github.com/PaperMC/Folia.git
