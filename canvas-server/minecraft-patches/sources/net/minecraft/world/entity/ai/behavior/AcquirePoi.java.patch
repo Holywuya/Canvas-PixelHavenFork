@@ -1,0 +1,34 @@
+--- a/net/minecraft/world/entity/ai/behavior/AcquirePoi.java
++++ b/net/minecraft/world/entity/ai/behavior/AcquirePoi.java
+@@ -51,6 +_,21 @@
+         Optional<Byte> entityEventId,
+         BiPredicate<ServerLevel, BlockPos> predicate
+     ) {
++        return create(acquirablePois, existingAbsentMemory, acquiringMemory, onlyIfAdult, entityEventId, predicate, mob -> 48, mob -> false); // Canvas - configurable scan range
++    }
++
++    // Canvas start - configurable scan range and if poi should load
++    public static BehaviorControl<PathfinderMob> create(
++        Predicate<Holder<PoiType>> acquirablePois,
++        MemoryModuleType<GlobalPos> existingAbsentMemory,
++        MemoryModuleType<GlobalPos> acquiringMemory,
++        boolean onlyIfAdult,
++        Optional<Byte> entityEventId,
++        BiPredicate<ServerLevel, BlockPos> predicate,
++        java.util.function.Function<PathfinderMob, Integer> scanRange,
++        java.util.function.Function<PathfinderMob, Boolean> shouldLoad
++    ) {
++    // Canvas end - configurable scan range and if poi should load
+         int i = 5;
+         int i1 = 20;
+         MutableLong mutableLong = new MutableLong(0L);
+@@ -85,7 +_,8 @@
+                             };
+                             // Paper start - optimise POI access
+                             final java.util.List<Pair<Holder<PoiType>, BlockPos>> poiposes = new java.util.ArrayList<>();
+-                            io.papermc.paper.util.PoiAccess.findNearestPoiPositions(poiManager, acquirablePois, predicate1, mob.blockPosition(), 48, 48*48, PoiManager.Occupancy.HAS_SPACE, false, 5, poiposes);
++                            final int range = scanRange.apply(mob); // Canvas - configurable scan range
++                            io.papermc.paper.util.PoiAccess.findNearestPoiPositions(poiManager, acquirablePois, predicate1, mob.blockPosition(), range, range*range, PoiManager.Occupancy.HAS_SPACE, shouldLoad.apply(mob), 5, poiposes); // Canvas - configurable scan range and if poi should load
+                             final Set<Pair<Holder<PoiType>, BlockPos>> set = new java.util.HashSet<>(poiposes.size());
+                             for (final Pair<Holder<PoiType>, BlockPos> poiPose : poiposes) {
+                                 if (predicate.test(level, poiPose.getSecond())) {
