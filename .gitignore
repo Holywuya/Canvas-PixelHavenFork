@@ -18,5 +18,7 @@ build
 .idea/
 /local/
 
+.worktrees/
+
 /*-debug/
 /*-plugin/
