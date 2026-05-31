@@ -1,0 +1,11 @@
+--- a/net/minecraft/server/level/WorldGenRegion.java
++++ b/net/minecraft/server/level/WorldGenRegion.java
+@@ -319,7 +_,7 @@
+             return true;
+         } else {
+             // Paper start - Buffer OOB setBlock calls
+-            if (!hasSetFarWarned) {
++            if (io.canvasmc.canvas.GlobalConfiguration.getInstance().logToConsole.setBlockInFarChunk && !hasSetFarWarned) { // Canvas - do not log setBlock in far chunks
+             Util.logAndPauseIfInIde(
+                 "Detected setBlock in a far chunk ["
+                     + sectionPosX

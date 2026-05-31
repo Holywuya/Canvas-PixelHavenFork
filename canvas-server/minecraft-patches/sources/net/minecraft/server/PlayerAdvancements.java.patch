@@ -1,0 +1,11 @@
+--- a/net/minecraft/server/PlayerAdvancements.java
++++ b/net/minecraft/server/PlayerAdvancements.java
+@@ -146,7 +_,7 @@
+             AdvancementHolder advancementHolder = advancementManager.get(path);
+             if (advancementHolder == null) {
+                 if (!path.getNamespace().equals(Identifier.DEFAULT_NAMESPACE)) return; // CraftBukkit
+-                LOGGER.warn("Ignored advancement '{}' in progress file {} - it doesn't exist anymore?", path, this.playerSavePath);
++                if (io.canvasmc.canvas.GlobalConfiguration.getInstance().logToConsole.ignoredAdvancements) LOGGER.warn("Ignored advancement '{}' in progress file {} - it doesn't exist anymore?", path, this.playerSavePath); // Canvas - do not log ignored advancements
+             } else {
+                 this.startProgress(advancementHolder, progress);
+                 this.progressChanged.add(advancementHolder);

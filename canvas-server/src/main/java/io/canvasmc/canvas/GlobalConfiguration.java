@@ -702,10 +702,14 @@ public class GlobalConfiguration extends Part {
         {
             option("invalidStatistics").docs("是否记录无效统计数据的错误日志");
             option("emptyMessageWarning").docs("是否记录玩家发送空消息的警告日志");
+            option("ignoredAdvancements").docs("是否记录被忽略的进度的警告日志");
+            option("setBlockInFarChunk").docs("是否记录在远距离区块中调用 setBlock 的警告日志");
         }
 
         public boolean invalidStatistics = true;
         public boolean emptyMessageWarning = true;
+        public boolean ignoredAdvancements = true;
+        public boolean setBlockInFarChunk = true;
     }
 
 }
