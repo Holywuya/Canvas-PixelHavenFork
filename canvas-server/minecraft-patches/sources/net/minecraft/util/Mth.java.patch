@@ -1,0 +1,40 @@
+--- a/net/minecraft/util/Mth.java
++++ b/net/minecraft/util/Mth.java
+@@ -65,13 +_,11 @@
+     }
+ 
+     public static int floor(double value) {
+-        int i = (int)value;
+-        return value < i ? i - 1 : i;
++        return (int) Math.floor(value); // Canvas - use platform math functions
+     }
+ 
+     public static long lfloor(double value) {
+-        long l = (long)value;
+-        return value < l ? l - 1L : l;
++        return (long) Math.floor(value); // Canvas - use platform math functions
+     }
+ 
+     public static float abs(float value) {
+@@ -83,18 +_,15 @@
+     }
+ 
+     public static int ceil(float value) {
+-        int i = (int)value;
+-        return value > i ? i + 1 : i;
++        return (int) Math.ceil(value); // Canvas - use platform math functions
+     }
+ 
+     public static int ceil(double value) {
+-        int i = (int)value;
+-        return value > i ? i + 1 : i;
++        return (int) Math.ceil(value); // Canvas - use platform math functions
+     }
+ 
+     public static long ceilLong(double value) {
+-        long l = (long)value;
+-        return value > l ? l + 1L : l;
++        return (long) Math.ceil(value); // Canvas - use platform math functions
+     }
+ 
+     public static int clamp(int value, int min, int max) {
