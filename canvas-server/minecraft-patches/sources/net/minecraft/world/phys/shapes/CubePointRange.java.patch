@@ -1,0 +1,24 @@
+--- a/net/minecraft/world/phys/shapes/CubePointRange.java
++++ b/net/minecraft/world/phys/shapes/CubePointRange.java
+@@ -4,6 +_,7 @@
+ 
+ public class CubePointRange extends AbstractDoubleList {
+     private final int parts;
++    private final double scale; // Canvas - Lithium - replace division by multiplication in CubePointRange
+ 
+     public CubePointRange(int parts) {
+         if (parts <= 0) {
+@@ -11,11 +_,12 @@
+         } else {
+             this.parts = parts;
+         }
++        this.scale = 1.0D / parts; // Canvas - Lithium - replace division by multiplication in CubePointRange
+     }
+ 
+     @Override
+     public double getDouble(int value) {
+-        return (double)value / this.parts;
++        return value * this.scale; // Canvas - Lithium - replace division by multiplication in CubePointRange
+     }
+ 
+     @Override
