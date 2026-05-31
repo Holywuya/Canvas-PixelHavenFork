@@ -9,3 +9,12 @@
                          this.setChainBroken();
                          throw new SignedMessageChain.DecodeException(SignedMessageChain.DecodeException.OUT_OF_ORDER_CHAT, org.bukkit.event.player.PlayerKickEvent.Cause.OUT_OF_ORDER_CHAT); // Paper - kick event causes
                      } else {
+@@ -54,7 +_,7 @@
+                             this.setChainBroken();
+                             throw new SignedMessageChain.DecodeException(SignedMessageChain.DecodeException.INVALID_SIGNATURE);
+                         } else {
+-                            if (playerChatMessage.hasExpiredServer(Instant.now())) {
++                            if (io.canvasmc.canvas.GlobalConfiguration.getInstance().logToConsole.expiredMessageWarning && playerChatMessage.hasExpiredServer(Instant.now())) { // Canvas - do not log expired message warnings
+                                 SignedMessageChain.LOGGER.warn("Received expired chat: '{}'. Is the client/server system time unsynchronized?", body.content());
+                             }
+ 

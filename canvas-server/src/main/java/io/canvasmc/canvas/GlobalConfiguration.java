@@ -705,6 +705,9 @@ public class GlobalConfiguration extends Part {
             option("ignoredAdvancements").docs("是否记录被忽略的进度的警告日志");
             option("setBlockInFarChunk").docs("是否记录在远距离区块中调用 setBlock 的警告日志");
             option("unrecognizedRecipes").docs("是否记录无法识别的配方的错误日志");
+            option("expiredMessageWarning").docs("是否记录过期消息的警告日志");
+            option("notSecureMarker").docs("是否记录聊天消息的 \"Not Secure\" 标记");
+            option("nullIdDisconnections").docs("是否记录 ID 为 null 的断开连接日志");
         }
 
         public boolean invalidStatistics = true;
@@ -712,6 +715,9 @@ public class GlobalConfiguration extends Part {
         public boolean ignoredAdvancements = true;
         public boolean setBlockInFarChunk = true;
         public boolean unrecognizedRecipes = true;
+        public boolean expiredMessageWarning = true;
+        public boolean notSecureMarker = true;
+        public boolean nullIdDisconnections = true;
     }
 
 }

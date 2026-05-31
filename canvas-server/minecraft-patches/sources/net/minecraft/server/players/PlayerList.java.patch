@@ -196,6 +196,15 @@
                  continue;
              }
              // Folia end - region threading
+@@ -1239,7 +_,7 @@
+     public void broadcastChatMessage(PlayerChatMessage message, Predicate<ServerPlayer> shouldFilterMessageTo, @Nullable ServerPlayer sender, ChatType.Bound boundChatType, @Nullable Function<net.kyori.adventure.audience.Audience, Component> unsignedFunction) {
+         // Paper end
+         boolean flag = this.verifyChatTrusted(message);
+-        this.server.logChatMessage((unsignedFunction == null ? message.decoratedContent() : unsignedFunction.apply(this.server.console)), boundChatType, flag ? null : "Not Secure"); // Paper
++        this.server.logChatMessage((unsignedFunction == null ? message.decoratedContent() : unsignedFunction.apply(this.server.console)), boundChatType, flag || !io.canvasmc.canvas.GlobalConfiguration.getInstance().logToConsole.notSecureMarker ? null : "Not Secure"); // Paper // Canvas - do not log Not Secure marker
+         OutgoingChatMessage outgoingChatMessage = OutgoingChatMessage.create(message);
+         boolean flag1 = false;
+ 
 @@ -1264,6 +_,7 @@
      }
  

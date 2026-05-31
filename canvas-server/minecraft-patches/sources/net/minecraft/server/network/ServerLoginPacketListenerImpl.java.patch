@@ -1,5 +1,21 @@
 --- a/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
+@@ -132,6 +_,15 @@
+ 
+     public void disconnect(Component reason) {
+         try {
++            // Canvas start - do not log disconnections with null id
++            if (!io.canvasmc.canvas.GlobalConfiguration.getInstance().logToConsole.nullIdDisconnections && this.authenticatedProfile != null && this.authenticatedProfile.id() == null) {
++                var reasonString = reason.getString();
++
++                if ("Disconnected".equals(reasonString) || Component.translatable("multiplayer.disconnect.generic").getString().equals(reasonString)) {
++                    return;
++                }
++            }
++            // Canvas end - do not log disconnections with null id
+             LOGGER.info("Disconnecting {}: {}", this.getUserName(), reason.getString());
+             this.connection.send(new ClientboundLoginDisconnectPacket(reason));
+             this.connection.disconnect(reason);
 @@ -423,11 +_,32 @@
          this.disconnect(ServerCommonPacketListenerImpl.DISCONNECT_UNEXPECTED_QUERY);
      }
