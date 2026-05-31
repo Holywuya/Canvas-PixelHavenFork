@@ -1,5 +1,23 @@
 --- a/net/minecraft/world/damagesource/CombatTracker.java
 +++ b/net/minecraft/world/damagesource/CombatTracker.java
+@@ -22,7 +_,8 @@
+     private static final Style INTENTIONAL_GAME_DESIGN_STYLE = Style.EMPTY
+         .withClickEvent(new ClickEvent.OpenUrl(CommonLinks.INTENTIONAL_GAME_DESIGN_BUG))
+         .withHoverEvent(new HoverEvent.ShowText(Component.literal("MCPE-28723")));
+-    public final List<CombatEntry> entries = Lists.newArrayList();
++    private static final int MAX_COMBAT_ENTRIES = 10240; // Canvas - Fix MC-301114 Combat Tracker memory leak
++    public final List<CombatEntry> entries;
+     public final LivingEntity mob;
+     private int lastDamageTime;
+     private int combatStartTime;
+@@ -33,6 +_,7 @@
+ 
+     public CombatTracker(LivingEntity mob) {
+         this.mob = mob;
++        this.entries = new io.canvasmc.canvas.util.collection.EvictingRingList<>(MAX_COMBAT_ENTRIES); // Canvas - Fix MC-301114 Combat Tracker memory leak
+         this.paperCombatTracker = new io.papermc.paper.world.damagesource.PaperCombatTrackerWrapper(this); // Paper - Combat tracker API
+     }
+ 
 @@ -47,6 +_,11 @@
      public void recordDamageAndCheckCombatState(final CombatEntry combatEntry) {
          final DamageSource source = combatEntry.source();
