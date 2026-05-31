@@ -69,6 +69,15 @@
              LOGGER.error(
                  "Received unsigned command packet from {}, but the command requires signable arguments: {}", this.player.getGameProfile().name(), command
              );
+@@ -2626,7 +_,7 @@
+         // CraftBukkit start
+         String rawMessage = message.signedContent();
+         if (rawMessage.isEmpty()) {
+-            LOGGER.warn("{} tried to send an empty message", this.player.getScoreboardName());
++            if (io.canvasmc.canvas.GlobalConfiguration.getInstance().logToConsole.emptyMessageWarning) LOGGER.warn("{} tried to send an empty message", this.player.getScoreboardName()); // Canvas - do not log empty message warnings
+         } else if (this.getCraftPlayer().isConversing()) {
+             if (true) throw new UnsupportedOperationException(); // Folia - region threading
+             final String conversationInput = rawMessage;
 @@ -3742,7 +_,7 @@
      private void resetPlayerChatState(RemoteChatSession chatSession) {
          this.chatSession = chatSession;

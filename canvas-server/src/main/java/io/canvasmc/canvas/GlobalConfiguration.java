@@ -696,4 +696,16 @@ public class GlobalConfiguration extends Part {
         public ChronoUnit unit = ChronoUnit.DAYS;
     }
 
+    public LogToConsole logToConsole = new LogToConsole();
+    public static class LogToConsole extends Part {
+
+        {
+            option("invalidStatistics").docs("是否记录无效统计数据的错误日志");
+            option("emptyMessageWarning").docs("是否记录玩家发送空消息的警告日志");
+        }
+
+        public boolean invalidStatistics = true;
+        public boolean emptyMessageWarning = true;
+    }
+
 }
