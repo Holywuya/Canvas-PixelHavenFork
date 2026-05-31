@@ -704,12 +704,14 @@ public class GlobalConfiguration extends Part {
             option("emptyMessageWarning").docs("是否记录玩家发送空消息的警告日志");
             option("ignoredAdvancements").docs("是否记录被忽略的进度的警告日志");
             option("setBlockInFarChunk").docs("是否记录在远距离区块中调用 setBlock 的警告日志");
+            option("unrecognizedRecipes").docs("是否记录无法识别的配方的错误日志");
         }
 
         public boolean invalidStatistics = true;
         public boolean emptyMessageWarning = true;
         public boolean ignoredAdvancements = true;
         public boolean setBlockInFarChunk = true;
+        public boolean unrecognizedRecipes = true;
     }
 
 }

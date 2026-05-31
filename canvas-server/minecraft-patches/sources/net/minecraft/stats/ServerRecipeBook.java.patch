@@ -1,0 +1,11 @@
+--- a/net/minecraft/stats/ServerRecipeBook.java
++++ b/net/minecraft/stats/ServerRecipeBook.java
+@@ -106,7 +_,7 @@
+     private void loadRecipes(List<ResourceKey<Recipe<?>>> recipes, Consumer<ResourceKey<Recipe<?>>> output, Predicate<ResourceKey<Recipe<?>>> isRecognized) {
+         for (ResourceKey<Recipe<?>> resourceKey : recipes) {
+             if (!isRecognized.test(resourceKey)) {
+-                LOGGER.error("Tried to load unrecognized recipe: {} removed now.", resourceKey);
++                if (io.canvasmc.canvas.GlobalConfiguration.getInstance().logToConsole.unrecognizedRecipes) LOGGER.error("Tried to load unrecognized recipe: {} removed now.", resourceKey); // Canvas - do not log unrecognized recipes
+             } else {
+                 output.accept(resourceKey);
+             }
