@@ -1,6 +1,42 @@
 --- a/net/minecraft/world/entity/vehicle/minecart/OldMinecartBehavior.java
 +++ b/net/minecraft/world/entity/vehicle/minecart/OldMinecartBehavior.java
-@@ -397,7 +_,7 @@
+@@ -368,6 +_,7 @@
+     public boolean pushAndPickupEntities() {
+         AABB aabb = this.minecart.getBoundingBox().inflate(0.2F, 0.0, 0.2F);
+         if (this.minecart.isRideable() && this.getDeltaMovement().horizontalDistanceSqr() >= 0.01) {
++            final boolean hasVehicleEntityCollisionEvent = org.bukkit.event.vehicle.VehicleEntityCollisionEvent.getHandlerList().getRegisteredListeners().length > 0; // Canvas - Skip VehicleEntityCollisionEvent if no listeners
+             List<Entity> entities = this.level().getEntities(this.minecart, aabb, EntitySelector.pushableBy(this.minecart));
+             if (!entities.isEmpty()) {
+                 for (Entity entity : entities) {
+@@ -377,33 +_,37 @@
+                         && !this.minecart.isVehicle()
+                         && !entity.isPassenger()) {
+                         // CraftBukkit start
+-                        org.bukkit.event.vehicle.VehicleEntityCollisionEvent collisionEvent = new org.bukkit.event.vehicle.VehicleEntityCollisionEvent(
+-                            (org.bukkit.entity.Vehicle) this.minecart.getBukkitEntity(), entity.getBukkitEntity()
+-                        );
+-                        if (!collisionEvent.callEvent()) continue;
++                        if (hasVehicleEntityCollisionEvent) { // Canvas - Skip VehicleEntityCollisionEvent if no listeners
++                            org.bukkit.event.vehicle.VehicleEntityCollisionEvent collisionEvent = new org.bukkit.event.vehicle.VehicleEntityCollisionEvent(
++                                (org.bukkit.entity.Vehicle) this.minecart.getBukkitEntity(), entity.getBukkitEntity()
++                            );
++                            if (!collisionEvent.callEvent()) continue;
++                        } // Canvas - Skip VehicleEntityCollisionEvent if no listeners
+                         // CraftBukkit end
+                         entity.startRiding(this.minecart);
+                     } else {
+                         // CraftBukkit start
+-                        if (!this.minecart.isPassengerOfSameVehicle(entity)) {
++                        if (!this.minecart.isPassengerOfSameVehicle(entity) && hasVehicleEntityCollisionEvent) { // Canvas - Skip VehicleEntityCollisionEvent if no listeners
+                             org.bukkit.event.vehicle.VehicleEntityCollisionEvent collisionEvent = new org.bukkit.event.vehicle.VehicleEntityCollisionEvent(
+                                 (org.bukkit.entity.Vehicle) this.minecart.getBukkitEntity(), entity.getBukkitEntity()
+                             );
+                             if (!collisionEvent.callEvent()) continue;
+-                        }
++                        } // Canvas - Skip VehicleEntityCollisionEvent if no listeners
+                         // CraftBukkit end
+                         entity.push(this.minecart);
+                     }
                  }
              }
          } else {
@@ -8,4 +44,16 @@
 +            for (Entity entity1 : this.level().getEntitiesOfClass(AbstractMinecart.class, aabb, entity -> entity != this.minecart)) { // Canvas - optimize entity type predicates
                  if (!this.minecart.hasPassenger(entity1) && entity1.isPushable() && entity1 instanceof AbstractMinecart) {
                      // CraftBukkit start
-                     org.bukkit.event.vehicle.VehicleEntityCollisionEvent collisionEvent = new org.bukkit.event.vehicle.VehicleEntityCollisionEvent(
+-                    org.bukkit.event.vehicle.VehicleEntityCollisionEvent collisionEvent = new org.bukkit.event.vehicle.VehicleEntityCollisionEvent(
+-                        (org.bukkit.entity.Vehicle) this.minecart.getBukkitEntity(), entity1.getBukkitEntity()
+-                    );
+-                    if (!collisionEvent.callEvent()) continue;
++                    if (org.bukkit.event.vehicle.VehicleEntityCollisionEvent.getHandlerList().getRegisteredListeners().length > 0) { // Canvas - Skip VehicleEntityCollisionEvent if no listeners
++                        org.bukkit.event.vehicle.VehicleEntityCollisionEvent collisionEvent = new org.bukkit.event.vehicle.VehicleEntityCollisionEvent(
++                            (org.bukkit.entity.Vehicle) this.minecart.getBukkitEntity(), entity1.getBukkitEntity()
++                        );
++                        if (!collisionEvent.callEvent()) continue;
++                    } // Canvas - Skip VehicleEntityCollisionEvent if no listeners
+                     // CraftBukkit end
+                     entity1.push(this.minecart);
+                 }

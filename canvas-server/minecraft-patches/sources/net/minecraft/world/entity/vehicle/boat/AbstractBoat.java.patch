@@ -1,5 +1,35 @@
 --- a/net/minecraft/world/entity/vehicle/boat/AbstractBoat.java
 +++ b/net/minecraft/world/entity/vehicle/boat/AbstractBoat.java
+@@ -188,25 +_,25 @@
+         if (entity instanceof AbstractBoat) {
+             if (entity.getBoundingBox().minY < this.getBoundingBox().maxY) {
+                 // CraftBukkit start
+-                if (!this.isPassengerOfSameVehicle(entity)) {
++                if (!this.isPassengerOfSameVehicle(entity) && org.bukkit.event.vehicle.VehicleEntityCollisionEvent.getHandlerList().getRegisteredListeners().length > 0) { // Canvas - Skip VehicleEntityCollisionEvent if no listeners
+                     org.bukkit.event.vehicle.VehicleEntityCollisionEvent event = new org.bukkit.event.vehicle.VehicleEntityCollisionEvent(
+                         (org.bukkit.entity.Vehicle) this.getBukkitEntity(),
+                         entity.getBukkitEntity()
+                     );
+                     if (!event.callEvent()) return;
+-                }
++                } // Canvas - Skip VehicleEntityCollisionEvent if no listeners
+                 // CraftBukkit end
+                 super.push(entity);
+             }
+         } else if (entity.getBoundingBox().minY <= this.getBoundingBox().minY) {
+             // CraftBukkit start
+-            if (!this.isPassengerOfSameVehicle(entity)) {
++            if (!this.isPassengerOfSameVehicle(entity) && org.bukkit.event.vehicle.VehicleEntityCollisionEvent.getHandlerList().getRegisteredListeners().length > 0) { // Canvas - Skip VehicleEntityCollisionEvent if no listeners
+                 org.bukkit.event.vehicle.VehicleEntityCollisionEvent event = new org.bukkit.event.vehicle.VehicleEntityCollisionEvent(
+                     (org.bukkit.entity.Vehicle) this.getBukkitEntity(),
+                     entity.getBukkitEntity()
+                 );
+                 if (!event.callEvent()) return;
+-            }
++            } // Canvas - Skip VehicleEntityCollisionEvent if no listeners
+             // CraftBukkit end
+             super.push(entity);
+         }
 @@ -786,7 +_,7 @@
  
      @Override

@@ -1,0 +1,31 @@
+--- a/net/minecraft/world/entity/vehicle/minecart/AbstractMinecart.java
++++ b/net/minecraft/world/entity/vehicle/minecart/AbstractMinecart.java
+@@ -171,6 +_,9 @@
+             return false;
+         }
+ 
++        if (org.bukkit.event.vehicle.VehicleEntityCollisionEvent.getHandlerList().getRegisteredListeners().length == 0) { // Canvas - Skip VehicleEntityCollisionEvent if no listeners
++            return true;
++        } // Canvas - Skip VehicleEntityCollisionEvent if no listeners
+         org.bukkit.event.vehicle.VehicleEntityCollisionEvent collisionEvent = new org.bukkit.event.vehicle.VehicleEntityCollisionEvent((org.bukkit.entity.Vehicle) this.getBukkitEntity(), entity.getBukkitEntity());
+         return collisionEvent.callEvent();
+         // Paper end - fix VehicleEntityCollisionEvent not called when colliding with player
+@@ -544,11 +_,13 @@
+                 if (!this.level().paperConfig().collisions.allowVehicleCollisions && this.level().paperConfig().collisions.onlyPlayersCollide && !(entity instanceof Player)) return; // Paper - Collision option for requiring a player participant
+                 if (!this.hasPassenger(entity)) {
+                     // CraftBukkit start
+-                    org.bukkit.event.vehicle.VehicleEntityCollisionEvent collisionEvent = new org.bukkit.event.vehicle.VehicleEntityCollisionEvent(
+-                        (org.bukkit.entity.Vehicle) this.getBukkitEntity(),
+-                        entity.getBukkitEntity()
+-                    );
+-                    if (!collisionEvent.callEvent()) return;
++                    if (org.bukkit.event.vehicle.VehicleEntityCollisionEvent.getHandlerList().getRegisteredListeners().length > 0) { // Canvas - Skip VehicleEntityCollisionEvent if no listeners
++                        org.bukkit.event.vehicle.VehicleEntityCollisionEvent collisionEvent = new org.bukkit.event.vehicle.VehicleEntityCollisionEvent(
++                            (org.bukkit.entity.Vehicle) this.getBukkitEntity(),
++                            entity.getBukkitEntity()
++                        );
++                        if (!collisionEvent.callEvent()) return;
++                    } // Canvas - Skip VehicleEntityCollisionEvent if no listeners
+                     // CraftBukkit end
+                     double d = entity.getX() - this.getX();
+                     double d1 = entity.getZ() - this.getZ();
