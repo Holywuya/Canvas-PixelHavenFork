@@ -346,7 +346,7 @@
              }
          }
      }
-@@ -356,6 +_,8 @@
+@@ -356,20 +_,24 @@
          ChunkGenerator generator,
          MobSpawnSettings.SpawnerData data,
          BlockPos.MutableBlockPos pos,
@@ -355,6 +355,31 @@
          double distance
      ) {
          EntityType<?> entityType = data.type();
+         // Paper start - PreCreatureSpawnEvent
+-        com.destroystokyo.paper.event.entity.PreCreatureSpawnEvent event = new com.destroystokyo.paper.event.entity.PreCreatureSpawnEvent(
+-                org.bukkit.craftbukkit.util.CraftLocation.toBukkit(pos, level),
+-                org.bukkit.craftbukkit.entity.CraftEntityType.minecraftToBukkit(entityType), org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.NATURAL
+-        );
+-        if (!event.callEvent()) {
+-            if (event.shouldAbortSpawn()) {
+-                return PreSpawnStatus.ABORT;
++        if (com.destroystokyo.paper.event.entity.PreCreatureSpawnEvent.getHandlerList().getRegisteredListeners().length != 0) { // Canvas - Skip PreCreatureSpawnEvent if no listeners
++            com.destroystokyo.paper.event.entity.PreCreatureSpawnEvent event = new com.destroystokyo.paper.event.entity.PreCreatureSpawnEvent(
++                    org.bukkit.craftbukkit.util.CraftLocation.toBukkit(pos, level),
++                    org.bukkit.craftbukkit.entity.CraftEntityType.minecraftToBukkit(entityType), org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.NATURAL
++            );
++            if (!event.callEvent()) {
++                if (event.shouldAbortSpawn()) {
++                    return PreSpawnStatus.ABORT;
++                }
++                return PreSpawnStatus.CANCELLED;
+             }
+-            return PreSpawnStatus.CANCELLED;
+-        }
++        } // Canvas - Skip PreCreatureSpawnEvent if no listeners
+         final boolean success = entityType.getCategory() != MobCategory.MISC
+         // Paper end - PreCreatureSpawnEvent
+             && (
 @@ -377,9 +_,9 @@
                      || !(distance > entityType.getCategory().getDespawnDistance() * entityType.getCategory().getDespawnDistance())
              )
