@@ -535,6 +535,7 @@ public class GlobalConfiguration extends Part {
             );
         option("cacheMinecraft2BukkitEntityTypeConversion").docs("是否缓存开销较大的 CraftEntityType#minecraftToBukkit 调用");
         option("tileEntitySnapshotCreation").docs("启用在获取方块状态时创建方块实体快照");
+        option("allowLegacyScheduler").docs("允许传统 Bukkit 调度器操作，用于兼容不支持 Folia 的插件（如 MythicMobs）");
 
         option("defaultRespawnDimensionKey")
             .docs(
@@ -550,6 +551,7 @@ public class GlobalConfiguration extends Part {
     public boolean displayWorldLoadScreenForPortaling = true;
     public boolean cacheMinecraft2BukkitEntityTypeConversion = false;
     public boolean tileEntitySnapshotCreation = false;
+    public boolean allowLegacyScheduler = false; // Canvas - allow legacy scheduler for plugin compatibility
     public String defaultRespawnDimensionKey = Level.OVERWORLD.identifier().toString();
 
     public static @NonNull ResourceKey<@NonNull Level> fetchRespawnDimensionKey() {
