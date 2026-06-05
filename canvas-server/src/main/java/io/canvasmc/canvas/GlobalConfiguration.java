@@ -533,6 +533,11 @@ public class GlobalConfiguration extends Part {
                 "Folia 的传送重写导致客户端无法正确显示世界加载画面，",
                 "而是显示空白虚空。启用此选项后，Canvas 将显示正确的世界加载画面"
             );
+        option("displayWorldLoadScreenForTeleporting")
+            .docs(
+                "类似于 displayWorldLoadScreenForPortaling，但适用于跨区域传送（如 /tppos 命令）。",
+                "启用此选项后，Canvas 将在跨区域传送时显示正确的世界加载画面"
+            );
         option("cacheMinecraft2BukkitEntityTypeConversion").docs("是否缓存开销较大的 CraftEntityType#minecraftToBukkit 调用");
         option("tileEntitySnapshotCreation").docs("启用在获取方块状态时创建方块实体快照");
         option("allowLegacyScheduler").docs("允许传统 Bukkit 调度器操作，用于兼容不支持 Folia 的插件（如 MythicMobs）");
@@ -549,9 +554,10 @@ public class GlobalConfiguration extends Part {
     public String serverModName = ServerBuildInfo.buildInfo().brandName();
     public boolean restoreVanillaEnderPearlBehavior = false;
     public boolean displayWorldLoadScreenForPortaling = true;
+    public boolean displayWorldLoadScreenForTeleporting = true;
     public boolean cacheMinecraft2BukkitEntityTypeConversion = false;
     public boolean tileEntitySnapshotCreation = false;
-    public boolean allowLegacyScheduler = false; // Canvas - allow legacy scheduler for plugin compatibility
+    public boolean allowLegacyScheduler = true; // Canvas - allow legacy scheduler for plugin compatibility
     public String defaultRespawnDimensionKey = Level.OVERWORLD.identifier().toString();
 
     public static @NonNull ResourceKey<@NonNull Level> fetchRespawnDimensionKey() {
