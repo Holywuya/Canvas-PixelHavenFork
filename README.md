@@ -14,7 +14,7 @@ Canvas 是一个高性能的 Folia 分支，旨在为大规模服务器提供稳
 
 ## Fork 特色
 
-本分支在 Canvas 原版基础上，从多个上游项目移植了大量优化和修复：
+本分支在 Canvas 原版基础上，从多个上游项目移植了大量优化和修复，并自研了多项独创功能：
 
 ### 配置系统重写
 
@@ -61,6 +61,54 @@ Canvas 是一个高性能的 Folia 分支，旨在为大规模服务器提供稳
 | **Particle Throttling** | 粒子包节流，可配置每 tick 上限 |
 | **Dropper Transfer** | 投掷器零拷贝物品转移，跳过事件系统开销 |
 | **ItemEntity Water Fix** | 修复水中物品异常运动 |
+
+### 来自 Luminol 的功能
+
+| 功能 | 说明 |
+|------|------|
+| **Linear 区域格式** | LZ4 压缩 + ZSTD bucket 的自定义区域文件格式，磁盘空间减少约 50%，I/O 更快 |
+
+### 来自 LeafMC 的优化（第一批，10+ 补丁）
+
+| 补丁 | 说明 |
+|------|------|
+| **无 listener 跳过事件** | BlockPhysicsEvent / PreCreatureSpawnEvent / VehicleEntityCollisionEvent 无监听器时直接跳过 |
+| **CombatTracker 内存泄漏修复** | MC-301114，使用 EvictingRingList 限制战斗记录上限（10240 条） |
+| **MobEffectUtil 挖掘加速优化** | 避免 `hasEffect` 后重复 `getEffect`，一次查找 |
+| **Inventory iterator 移除** | 热路径从 iterator 改为 indexed loop，减少对象分配 |
+| **NamspacedKey 缓存** | 缓存 `toString()` 和 `hashCode()`，降低热路径开销 |
+| **SkeletonHorse trap NPE 修复** | 避免在 goal 迭代期间修改 goal 集合 |
+| **运算优化** | `CubePointRange` 除法转乘法、`Vec3i` 哈希优化、平台数学函数（floor/ceil） |
+| **哈希缓存** | `FluidOcclusionCacheKey` 和 `ShapePairKey` 哈希结果缓存 |
+| **BlockEntity 地图缓存** | `ChunkAccess` 中缓存 BlockEntity 查找表 |
+
+### 自研功能（PixelHaven 独创）
+
+**日志过滤与清理：**
+| 功能 | 说明 |
+|------|------|
+| **8 类日志过滤** | 独立开关压制：无效统计、空消息、被忽略进度、远距离 setBlock、无法识别配方、过期消息、Not Secure 标记、null ID 断连 |
+| **自动日志清理** | 可配置保留天数的日志自动清理 |
+
+**插件兼容性：**
+| 功能 | 说明 |
+|------|------|
+| **FAWE 兼容 Shim** | 恢复 `MinecraftServer.currentTick` 字段，兼容 FastAsyncWorldEdit |
+| **MythicMobs 兼容** | `allowLegacyScheduler` 选项允许传统 Bukkit 调度器操作 |
+| **`canvas-supported` 旗帜** | plugin.yml 标记，无需声明完整 Folia 支持即可兼容 Canvas |
+
+**村民行为优化：**
+| 功能 | 说明 |
+|------|------|
+| **POI 搜索范围配置** | 可分别限制工作站点、住所、集合点的 POI 搜索半径 |
+| **村民智能休眠增强** | 全封闭且无交易的村民跳过全部 AI 运算 |
+
+**其他优化：**
+| 功能 | 说明 |
+|------|------|
+| **平台数学函数** | 使用 `Math.floorDiv` / `Math.floorMod` 替换手写 floor 逻辑 |
+| **EntityType 转换缓存** | 缓存 `minecraftToBukkit` 转换结果 |
+| **快速随机源** | `Xoroshiro128PlusPlus` 替代 `SimpleThreadUnsafeRandom` |
 
 ### 原版 Canvas 功能
 
@@ -192,6 +240,8 @@ visuals:
 - [Lithium](https://github.com/CaffeineMC/lithium-fabric) — 区块序列化和装备追踪优化
 - [Gale](https://github.com/GaleMC/Gale) — AI 属性集合优化
 - [Purpur](https://github.com/PurpurMC/Purpur) — Alternative Keepalive 和容器扩展
+- [LeafMC](https://github.com/Winds-Studio/Leaf) — 事件跳过、内存修复、热路径优化
+- [Luminol](https://github.com/LuminolMC/Luminol) — Linear 区域格式
 
 ---
 
