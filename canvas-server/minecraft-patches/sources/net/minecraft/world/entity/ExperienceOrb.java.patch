@@ -1,5 +1,19 @@
 --- a/net/minecraft/world/entity/ExperienceOrb.java
 +++ b/net/minecraft/world/entity/ExperienceOrb.java
+@@ -114,6 +_,13 @@
+ 
+         this.setValue(value);
+     }
++    // Canvas start - fire res orbs
++
++    @Override
++    public boolean fireImmune() {
++        return level().canvasConfig().entities.experienceOrbsAreFireResistant;
++    }
++    // Canvas end - fire res orbs
+ 
+     public ExperienceOrb(EntityType<? extends ExperienceOrb> type, Level level) {
+         super(type, level);
 @@ -150,7 +_,7 @@
          } else {
              super.tick();

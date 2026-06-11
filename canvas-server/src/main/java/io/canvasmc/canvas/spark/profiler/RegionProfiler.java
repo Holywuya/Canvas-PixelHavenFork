@@ -52,6 +52,8 @@ public class RegionProfiler {
             // if we unpin later it doesn't really matter
             unpinCallback.run();
             STATE.getAndSet(null).handlePinner.unpin((scheduleHandle) -> {
+                // note: calling curr tick runner is safe here, since this callback is guaranteed to be run
+                //       on the schedule handle that is pinned, so we are on a tick runner
                 AffinitySchedulerThreadPool.TickThreadRunner threadRunner = ((AffinitySchedulerThreadPool) TickRegions.getScheduler().scheduler).getCurrentTickThreadRunner();
                 threadRunner.unlink();
                 sendMessage.accept("Completed profiler unpin and cleared state");

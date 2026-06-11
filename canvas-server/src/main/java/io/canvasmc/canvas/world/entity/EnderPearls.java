@@ -142,10 +142,14 @@ public record EnderPearls(Map<UUID, List<Pearl>> pearls) {
      *
      * @author dueris
      */
-    public record Pearl(CompoundTag serialized) {
+    public record Pearl(UUID uuid, CompoundTag serialized) { // Canvas - optimize Pearl equals/hashCode
+
+        public Pearl(final CompoundTag tag) {
+            this(tag.read("uuid", Codecs.UUID_CODEC).orElseThrow(), tag);
+        }
 
         @Contract("_ -> new")
-        public static Pearl of(ThrownEnderpearl pearl) {
+        public static Pearl of(final ThrownEnderpearl pearl) {
             final CompoundTag tag;
             try (final ProblemReporter.ScopedCollector problemReporter = new ProblemReporter.ScopedCollector(
                 () -> "pearl-serialize", io.canvasmc.canvas.GlobalConfiguration.LOGGER
@@ -161,7 +165,7 @@ public record EnderPearls(Map<UUID, List<Pearl>> pearls) {
 
                 tag = tagValueOutput.buildResult();
             }
-            return new Pearl(tag);
+            return new Pearl(pearl.getUUID(), tag);
         }
 
         public void spawn() {
@@ -187,8 +191,13 @@ public record EnderPearls(Map<UUID, List<Pearl>> pearls) {
         @Override
         public boolean equals(final Object o) {
             // if uuids match, same pearl
-            return o instanceof Pearl(CompoundTag otherSerialized) &&
-                otherSerialized.read("uuid", Codecs.UUID_CODEC).orElseThrow().equals(serialized.read("uuid", Codecs.UUID_CODEC).orElseThrow());
+            return o instanceof Pearl(UUID otherUuid, CompoundTag ignored) &&
+                uuid.equals(otherUuid);
+        }
+
+        @Override
+        public int hashCode() {
+            return uuid.hashCode();
         }
     }
 }

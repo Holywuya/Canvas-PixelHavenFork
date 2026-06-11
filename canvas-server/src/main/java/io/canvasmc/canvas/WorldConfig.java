@@ -454,6 +454,8 @@ public class WorldConfig extends Part {
             public boolean reduceMeetingPointPoiSearchRange = false;
             public boolean villagerSmartHibernation = false;
         }
+
+        public boolean experienceOrbsAreFireResistant = false; // Canvas - fire res orbs
     }
 
     public Combat combat = new Combat();

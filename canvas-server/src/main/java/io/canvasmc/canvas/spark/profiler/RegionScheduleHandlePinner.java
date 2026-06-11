@@ -192,6 +192,7 @@ public interface RegionScheduleHandlePinner {
                     if (region != TickRegionScheduler.getCurrentRegion()) {
                         throw new IllegalStateException("Not current region? Running region around " + region.getCenterChunk() + ", but scheduled to region owning " + getCenter());
                     }
+                    // note: calling curr tick runner here is safe since the callback is run at the specified coords
                     final TickRegionScheduler.RegionScheduleHandle schedulingHandle = region.getData().getRegionSchedulingHandle();
                     final AffinitySchedulerThreadPool.TickThreadRunner thread = ((AffinitySchedulerThreadPool) TickRegions.getScheduler().scheduler).getCurrentTickThreadRunner();
 
@@ -247,6 +248,7 @@ public interface RegionScheduleHandlePinner {
         @Override
         public void pin(BiConsumer<TickRegionScheduler.RegionScheduleHandle, AffinitySchedulerThreadPool.TickThreadRunner> finalizer) throws CommandSyntaxException {
             Runnable pinTask = () -> {
+                // note: calling curr tick runner here is safe since the runnable is executed on the global tick
                 TickRegionScheduler.RegionScheduleHandle schedulingHandle = RegionizedServer.getGlobalTickData();
                 final AffinitySchedulerThreadPool.TickThreadRunner thread = ((AffinitySchedulerThreadPool) TickRegions.getScheduler().scheduler).getCurrentTickThreadRunner();
 
