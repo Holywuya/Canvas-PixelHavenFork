@@ -1,5 +1,48 @@
 --- a/io/papermc/paper/entity/activation/ActivationRange.java
 +++ b/io/papermc/paper/entity/activation/ActivationRange.java
+@@ -60,26 +_,38 @@
+         if (entity.activationType == ActivationType.VILLAGER) {
+             if (inactiveFor > config.wakeUpInactiveVillagersEvery && worldData.wakeupInactiveRemainingVillagers > 0) { // Folia - threaded regions
+                 worldData.wakeupInactiveRemainingVillagers--; // Folia - threaded regions
+-                return config.wakeUpInactiveVillagersFor;
++                return getWakeUpDurationWithVariance(entity, config.wakeUpInactiveVillagersFor); // Canvas - variable entity wake-up duration
+             }
+         } else if (entity.activationType == ActivationType.ANIMAL) {
+             if (inactiveFor > config.wakeUpInactiveAnimalsEvery && worldData.wakeupInactiveRemainingAnimals > 0) { // Folia - threaded regions
+                 worldData.wakeupInactiveRemainingAnimals--; // Folia - threaded regions
+-                return config.wakeUpInactiveAnimalsFor;
++                return getWakeUpDurationWithVariance(entity, config.wakeUpInactiveAnimalsFor); // Canvas - variable entity wake-up duration
+             }
+         } else if (entity.activationType == ActivationType.FLYING_MONSTER) {
+             if (inactiveFor > config.wakeUpInactiveFlyingEvery && worldData.wakeupInactiveRemainingFlying > 0) { // Folia - threaded regions
+                 worldData.wakeupInactiveRemainingFlying--; // Folia - threaded regions
+-                return config.wakeUpInactiveFlyingFor;
++                return getWakeUpDurationWithVariance(entity, config.wakeUpInactiveFlyingFor); // Canvas - variable entity wake-up duration
+             }
+         } else if (entity.activationType == ActivationType.MONSTER || entity.activationType == ActivationType.RAIDER) {
+             if (inactiveFor > config.wakeUpInactiveMonstersEvery && worldData.wakeupInactiveRemainingMonsters > 0) { // Folia - threaded regions
+                 worldData.wakeupInactiveRemainingMonsters--; // Folia - threaded regions
+-                return config.wakeUpInactiveMonstersFor;
++                return getWakeUpDurationWithVariance(entity, config.wakeUpInactiveMonstersFor); // Canvas - variable entity wake-up duration
+             }
+         }
+         return -1;
+     }
++
++    // Canvas start - variable entity wake-up duration
++    private static final java.util.concurrent.ThreadLocalRandom WAKE_UP_DURATION_RANDOM = java.util.concurrent.ThreadLocalRandom.current();
++    private static final double WAKE_UP_DURATION_DEVIATION = 0.2;
++
++    private static int getWakeUpDurationWithVariance(net.minecraft.world.entity.Entity entity, int wakeUpDuration) {
++        if (WAKE_UP_DURATION_DEVIATION <= 0) {
++            return wakeUpDuration;
++        }
++        return (int) Math.min(Integer.MAX_VALUE, Math.max(1, Math.round(wakeUpDuration * WAKE_UP_DURATION_RANDOM.nextGaussian(1, WAKE_UP_DURATION_DEVIATION))));
++    }
++    // Canvas end - variable entity wake-up duration
+ 
+     //static AABB maxBB = new AABB(0, 0, 0, 0, 0, 0); // Folia - threaded regions - replaced by local variable
+ 
 @@ -231,7 +_,7 @@
          }
          // special cases.
