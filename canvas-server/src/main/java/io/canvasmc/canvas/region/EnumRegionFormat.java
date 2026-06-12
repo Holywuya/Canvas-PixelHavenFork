@@ -1,5 +1,6 @@
 package io.canvasmc.canvas.region;
 
+import io.canvasmc.canvas.GlobalConfiguration;
 import io.canvasmc.canvas.region.linear.BufferedLinearRegionFile;
 import io.canvasmc.canvas.region.linear.BufferedLinearRegionFileFlusher;
 import net.minecraft.world.level.chunk.storage.RegionFile;
@@ -15,7 +16,10 @@ public enum EnumRegionFormat {
     LINEAR_V2("linear_v2", "linear",
         (info) -> {
             final BufferedLinearRegionFileFlusher flusher = BufferedLinearRegionFileFlusher.getOrCreate(info.folder());
-            return new BufferedLinearRegionFile(info.filePath(), 1, flusher);
+            final int level = GlobalConfiguration.getInstance() != null
+                ? GlobalConfiguration.getInstance().regionCompressionLevel
+                : 3;
+            return new BufferedLinearRegionFile(info.filePath(), level, flusher);
         });
 
     private final String name;

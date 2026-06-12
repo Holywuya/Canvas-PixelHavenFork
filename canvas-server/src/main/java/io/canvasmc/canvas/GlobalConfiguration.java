@@ -676,6 +676,18 @@ public class GlobalConfiguration extends Part {
             );
     }
 
+    {
+        option("regionCompressionLevel")
+            .docs(
+                "Linear 区块格式的 Zstd 压缩等级。仅在选择 LINEAR_V2 格式时生效。",
+                "范围: 1（最快，低压缩）到 22（最慢，高压缩），推荐默认值 3。",
+                "更高的压缩等级可节省更多磁盘空间，但会略微增加写入时 CPU 开销。"
+            )
+            .between(1, 22);
+    }
+
+    public int regionCompressionLevel = 3;
+
     public io.canvasmc.canvas.region.EnumRegionFormat regionFormat = io.canvasmc.canvas.region.EnumRegionFormat.MCA;
 
     public Chat chat = new Chat();
