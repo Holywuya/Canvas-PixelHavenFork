@@ -1,0 +1,17 @@
+--- a/net/minecraft/world/entity/ai/behavior/PoiCompetitorScan.java
++++ b/net/minecraft/world/entity/ai/behavior/PoiCompetitorScan.java
+@@ -24,8 +_,12 @@
+                             return true;
+                         }
+                         // Folia end - region threading
+-                        level.getPoiManager()
+-                            .getType(globalPos.pos())
++                        // Canvas start - do not load too far POI chunk
++                        var blockPos = globalPos.pos();
++                        var poiManager = level.getPoiManager();
++                        poiManager.get(net.minecraft.core.SectionPos.asLong(blockPos))
++                            .flatMap(poiSection -> poiSection.getType(blockPos))
++                        // Canvas end - do not load too far POI chunk
+                             .ifPresent(
+                                 // Paper start - Improve performance of PoiCompetitorScan by unrolling stream
+                                 // The previous logic used Stream#reduce to simulate a form of single-iteration bubble sort
