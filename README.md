@@ -67,6 +67,8 @@ Canvas 是一个高性能的 Folia 分支，旨在为大规模服务器提供稳
 | 功能 | 说明 |
 |------|------|
 | **Linear 区域格式** | LZ4 压缩 + ZSTD bucket 的自定义区域文件格式，磁盘空间减少约 50%，I/O 更快 |
+| **区域压缩等级配置** | `regionCompressionLevel` 选项，ZSTD 压缩等级 1-22 可调，默认 3 |
+| **Folia Bug 修复** | 8 项 Folia 区域线程相关修复：volatile 引用、POI 扫描、实体 AI/记忆安全、栓绳、驯服动物传送、末影龙部件同步、移动事件竞态保护 |
 
 ### 来自 LeafMC 的优化（第一批，10+ 补丁）
 
@@ -195,6 +197,9 @@ networking:
   particle-throttling: false
   purpur-alternative-keepalive: false
 
+region-compression-level: 3
+region-format: MCA
+
 performance:
   throttle-inactive-goal-selector-tick: false
   faster-chunk-serialization: false
@@ -238,10 +243,10 @@ visuals:
 - [Spring-for-LeavesMC](https://github.com/XingZiNina/Spring-for-LeavesMC) — 性能优化和 Bug 修复
 - [Kitin](https://github.com/SucIXR/Kitin) — 网络和实体优化
 - [Lithium](https://github.com/CaffeineMC/lithium-fabric) — 区块序列化和装备追踪优化
-- [Gale](https://github.com/GaleMC/Gale) — AI 属性集合优化
+- [Gale](https://github.com/GaleMC/Gale) — AI 属性集合优化、可变实体唤醒时长
 - [Purpur](https://github.com/PurpurMC/Purpur) — Alternative Keepalive 和容器扩展
 - [LeafMC](https://github.com/Winds-Studio/Leaf) — 事件跳过、内存修复、热路径优化
-- [Luminol](https://github.com/LuminolMC/Luminol) — Linear 区域格式
+- [Luminol](https://github.com/LuminolMC/Luminol) — Linear 区域格式、Folia 线程安全修复、Gale 可变唤醒时长移植
 
 ---
 
