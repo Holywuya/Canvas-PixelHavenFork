@@ -10,6 +10,16 @@
          org.bukkit.event.vehicle.VehicleEntityCollisionEvent collisionEvent = new org.bukkit.event.vehicle.VehicleEntityCollisionEvent((org.bukkit.entity.Vehicle) this.getBukkitEntity(), entity.getBukkitEntity());
          return collisionEvent.callEvent();
          // Paper end - fix VehicleEntityCollisionEvent not called when colliding with player
+@@ -307,7 +_,9 @@
+         new org.bukkit.event.vehicle.VehicleUpdateEvent(vehicle).callEvent();
+ 
+         if (!from.equals(to)) {
++            this.blockTeleportAsync = true; // Canvas - Prevent teleportAsync calls during move events
+             new org.bukkit.event.vehicle.VehicleMoveEvent(vehicle, from, to).callEvent();
++            this.blockTeleportAsync = false; // Canvas - Prevent teleportAsync calls during move events
+         }
+         // CraftBukkit end
+         this.updateInWaterStateAndDoFluidPushing();
 @@ -544,11 +_,13 @@
                  if (!this.level().paperConfig().collisions.allowVehicleCollisions && this.level().paperConfig().collisions.onlyPlayersCollide && !(entity instanceof Player)) return; // Paper - Collision option for requiring a player participant
                  if (!this.hasPassenger(entity)) {

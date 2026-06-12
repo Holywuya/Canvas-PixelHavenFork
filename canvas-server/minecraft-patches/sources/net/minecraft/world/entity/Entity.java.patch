@@ -387,6 +387,25 @@
          // vanilla code used to call remove _after_ copying, and some stuff is required to be after copy - so add hook here
          // for example, clearing of inventory after switching dimensions
          this.postRemoveAfterChangingDimensions();
+@@ -4362,11 +_,18 @@
+             teleportTarget.cause(), teleportFlags, teleportComplete
+         );
+     }
++    public boolean blockTeleportAsync = false; // Canvas - Prevent teleportAsync calls during move events
+ 
+     // Canvas start - region threading
+     private void canvas$ensureCanTeleportAsync(ServerLevel destination, Vec3 pos, long teleportFlags) throws TeleportValidationException {
+         ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this, "Cannot teleport entity async");
+ 
++        // Canvas start - Prevent teleportAsync calls during move events
++        if (this.blockTeleportAsync) {
++            throw new TeleportValidationException("teleportAsync called during move event");
++        }
++        // Canvas end
++
+         if (!ServerLevel.isInSpawnableBounds(new BlockPos(ca.spottedleaf.moonrise.common.util.CoordinateUtils.getBlockX(pos), ca.spottedleaf.moonrise.common.util.CoordinateUtils.getBlockY(pos), ca.spottedleaf.moonrise.common.util.CoordinateUtils.getBlockZ(pos)))) {
+             throw new TeleportValidationException("Destination pos not in spawnable bounds");
+         }
 @@ -4568,7 +_,7 @@
      public boolean endPortalLogicAsync(BlockPos portalPos) {
          ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this, "Cannot portal entity async");

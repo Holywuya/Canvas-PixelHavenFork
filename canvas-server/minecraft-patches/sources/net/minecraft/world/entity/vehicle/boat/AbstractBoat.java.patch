@@ -30,6 +30,16 @@
              // CraftBukkit end
              super.push(entity);
          }
+@@ -282,7 +_,9 @@
+ 
+         if (this.lastLocation != null && !this.lastLocation.equals(to)) {
+             org.bukkit.event.vehicle.VehicleMoveEvent event = new org.bukkit.event.vehicle.VehicleMoveEvent(vehicle, this.lastLocation, to);
++            this.blockTeleportAsync = true; // Canvas - Prevent teleportAsync calls during move events
+             event.callEvent();
++            this.blockTeleportAsync = false; // Canvas - Prevent teleportAsync calls during move events
+         }
+         this.lastLocation = vehicle.getLocation();
+         // CraftBukkit end
 @@ -786,7 +_,7 @@
  
      @Override

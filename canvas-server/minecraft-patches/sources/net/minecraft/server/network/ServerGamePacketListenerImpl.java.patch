@@ -43,6 +43,16 @@
          // Folia start - region threading
          this.keepConnectionAlive();
          if (this.processedDisconnect || this.player.wonGame) {
+@@ -718,7 +_,9 @@
+ 
+                     Location oldTo = to.clone();
+                     PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
++                    this.player.blockTeleportAsync = true; // Canvas - Prevent teleportAsync calls during move events
+                     this.cserver.getPluginManager().callEvent(event);
++                    this.player.blockTeleportAsync = false; // Canvas - Prevent teleportAsync calls during move events
+ 
+                     // If the event is cancelled we move the player back to their old location.
+                     if (event.isCancelled()) {
 @@ -1817,11 +_,15 @@
      private boolean hasNewCollision(final ServerLevel level, final Entity entity, final AABB oldBox, final AABB newBox) {
          final List<AABB> collisionsBB = new java.util.ArrayList<>();
