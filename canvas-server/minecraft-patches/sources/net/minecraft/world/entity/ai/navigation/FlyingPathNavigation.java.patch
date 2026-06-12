@@ -1,0 +1,15 @@
+--- a/net/minecraft/world/entity/ai/navigation/FlyingPathNavigation.java
++++ b/net/minecraft/world/entity/ai/navigation/FlyingPathNavigation.java
+@@ -62,6 +_,12 @@
+ 
+             if (!this.isDone()) {
+                 Vec3 nextEntityPos = this.path.getNextEntityPos(this.mob);
++                // Canvas start - Recompute path when next step is outside current tick region
++                if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(this.mob.level(), nextEntityPos)) {
++                    this.hasDelayedRecomputation = true;
++                    return;
++                }
++                // Canvas end
+                 this.mob.getMoveControl().setWantedPosition(nextEntityPos.x, nextEntityPos.y, nextEntityPos.z, this.speedModifier);
+             }
+         }

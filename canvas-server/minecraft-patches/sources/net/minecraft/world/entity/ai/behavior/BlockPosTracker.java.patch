@@ -1,0 +1,14 @@
+--- a/net/minecraft/world/entity/ai/behavior/BlockPosTracker.java
++++ b/net/minecraft/world/entity/ai/behavior/BlockPosTracker.java
+@@ -37,4 +_,11 @@
+     public String toString() {
+         return "BlockPosTracker{blockPos=" + this.blockPos + ", centerPosition=" + this.centerPosition + "}";
+     }
++
++    // Canvas start - Fix entity brain memory thread safety
++    @Override
++    public boolean checkThread(net.minecraft.world.level.Level currOwnedByLevel) {
++        return ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(currOwnedByLevel, this.blockPos);
++    }
++    // Canvas end
+ }

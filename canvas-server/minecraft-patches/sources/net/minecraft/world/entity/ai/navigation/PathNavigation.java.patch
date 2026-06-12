@@ -1,0 +1,29 @@
+--- a/net/minecraft/world/entity/ai/navigation/PathNavigation.java
++++ b/net/minecraft/world/entity/ai/navigation/PathNavigation.java
+@@ -179,6 +_,13 @@
+                 }
+             }
+             // Paper end - EntityPathfindEvent
++            // Canvas start - Do not pathfind to targets outside current tick region
++            targets = new java.util.HashSet<>(targets);
++            targets.removeIf(pos -> !ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(this.mob.level(), pos));
++            if (targets.isEmpty()) {
++                return null;
++            }
++            // Canvas end - Do not pathfind to targets outside current tick region
+             BlockPos blockPos = offsetUpward ? this.mob.blockPosition().above() : this.mob.blockPosition();
+             int i = (int)(followRange + regionOffset);
+             PathNavigationRegion pathNavigationRegion = new PathNavigationRegion(this.level, blockPos.offset(-i, -i, -i), blockPos.offset(i, i, i));
+@@ -278,6 +_,12 @@
+ 
+             if (!this.isDone()) {
+                 Vec3 tempMobPos = this.path.getNextEntityPos(this.mob);
++                // Canvas start - Recompute path when next step is outside current tick region
++                if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(this.mob.level(), tempMobPos)) {
++                    this.hasDelayedRecomputation = true;
++                    return;
++                }
++                // Canvas end
+                 this.mob.getMoveControl().setWantedPosition(tempMobPos.x, this.getGroundY(tempMobPos), tempMobPos.z, this.speedModifier);
+             }
+         }
