@@ -456,6 +456,7 @@ public class WorldConfig extends Part {
         }
 
         public boolean experienceOrbsAreFireResistant = false; // Canvas - fire res orbs
+        public boolean allowUnsafeTeleportation = false; // Luminol - allow unsafe teleportation (沙子复制等)
     }
 
     public Combat combat = new Combat();

@@ -12,6 +12,18 @@
              // CraftBukkit start - Entity in portal
              org.bukkit.event.entity.EntityPortalEnterEvent event = new org.bukkit.event.entity.EntityPortalEnterEvent(entity.getBukkitEntity(), org.bukkit.craftbukkit.util.CraftLocation.toBukkit(pos, level), org.bukkit.PortalType.ENDER); // Paper - add portal type
              level.getCraftServer().getPluginManager().callEvent(event);
+@@ -70,6 +_,11 @@
+                 if (level.paperConfig().misc.disableEndCredits) {serverPlayer.seenCredits = true; return;} // Paper - Option to disable end credits
+                 serverPlayer.showEndCredits();
+             } else {
++                // Luminol start - unsafe teleportation
++                if (io.canvasmc.canvas.WorldConfig.getDefaults().entities.allowUnsafeTeleportation && !(entity instanceof net.minecraft.world.entity.player.Player)) {
++                    entity.endPortalLogicAsync(pos);
++                }
++                // Luminol end
+                 entity.setAsInsidePortal(this, pos);
+             }
+         }
 @@ -110,10 +_,10 @@
              }
  

@@ -1,11 +1,20 @@
 --- a/net/minecraft/world/entity/item/FallingBlockEntity.java
 +++ b/net/minecraft/world/entity/item/FallingBlockEntity.java
+@@ -69,7 +_,7 @@
+     public int fallDamageMax = 40;
+     public float fallDamagePerDistance = 0.0F;
+     public @Nullable CompoundTag blockData;
+-    public boolean forceTickAfterTeleportToDuplicate;
++    public boolean forceTickAfterTeleportToDuplicate = io.canvasmc.canvas.WorldConfig.getDefaults().entities.allowUnsafeTeleportation; // Luminol - unsafe teleportation
+     protected static final EntityDataAccessor<BlockPos> DATA_START_POS = SynchedEntityData.defineId(FallingBlockEntity.class, EntityDataSerializers.BLOCK_POS);
+     public boolean autoExpire = true; // Paper - Expand FallingBlock API
+ 
 @@ -384,7 +_,7 @@
          ResourceKey<Level> resourceKey1 = this.level().dimension();
          boolean flag = (resourceKey1 == Level.END || resourceKey == Level.END) && resourceKey1 != resourceKey;
          Entity entity = super.teleport(teleportTransition);
 -        this.forceTickAfterTeleportToDuplicate = entity != null && flag && io.papermc.paper.configuration.GlobalConfiguration.get().unsupportedSettings.allowUnsafeEndPortalTeleportation; // Paper
-+        this.forceTickAfterTeleportToDuplicate = entity != null && flag; // Paper // Leaves - fix duplicate
++        this.forceTickAfterTeleportToDuplicate = entity != null && flag && (io.papermc.paper.configuration.GlobalConfiguration.get().unsupportedSettings.allowUnsafeEndPortalTeleportation || io.canvasmc.canvas.WorldConfig.getDefaults().entities.allowUnsafeTeleportation); // Paper // Leaves - fix duplicate // Luminol - unsafe teleportation
          return entity;
      }
  }
