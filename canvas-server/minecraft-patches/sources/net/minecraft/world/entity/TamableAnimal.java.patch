@@ -1,0 +1,12 @@
+--- a/net/minecraft/world/entity/TamableAnimal.java
++++ b/net/minecraft/world/entity/TamableAnimal.java
+@@ -316,7 +_,8 @@
+         if (pathTypeStatic != PathType.WALKABLE) {
+             return false;
+         } else {
+-            BlockState blockState = this.level().getBlockState(pos.below());
++            BlockState blockState = this.level().getBlockStateIfLoaded(pos.below()); // Canvas - Prevent sync chunk load
++            if (blockState == null) return false; // Canvas - Prevent sync chunk load
+             if (!this.canFlyToOwner() && blockState.getBlock() instanceof LeavesBlock) {
+                 return false;
+             } else {
