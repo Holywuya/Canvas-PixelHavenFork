@@ -1,0 +1,10 @@
+--- a/ca/spottedleaf/moonrise/patches/chunk_system/level/entity/server/ServerEntityLookup.java
++++ b/ca/spottedleaf/moonrise/patches/chunk_system/level/entity/server/ServerEntityLookup.java
+@@ -97,6 +_,7 @@
+         if (entity instanceof ThrownEnderpearl enderpearl) {
+             this.addEnderPearl(CoordinateUtils.getChunkKey(enderpearl.chunkPosition()), enderpearl.getId()); // Folia - region threading
+         }
++        if (entity instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon dragon) dragon.syncDragonPartsAfterTeleportTransform(); // Canvas - Sync dragon part when teleportation or first created
+         entity.registerScheduler(); // Paper - optimise Folia entity scheduler
+     }
+ 

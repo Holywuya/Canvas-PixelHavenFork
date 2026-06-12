@@ -1,0 +1,15 @@
+--- a/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java
++++ b/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java
+@@ -1024,4 +_,12 @@
+         return flag ? i : 0;
+     }
+     // CraftBukkit end
++
++    // Canvas start - Sync dragon part when teleportation or first created
++    public void syncDragonPartsAfterTeleportTransform() {
++        for (EnderDragonPart part : this.subEntities) {
++            this.tickPart(part, 0.0, 0.0, 0.0);
++        }
++    }
++    // Canvas end
+ }

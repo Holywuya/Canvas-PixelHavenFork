@@ -379,6 +379,14 @@
          if (level instanceof ServerLevel serverLevel) {
              for (int i = 0; i < 2; i++) {
                  serverLevel.sendParticles(
+@@ -4346,6 +_,7 @@
+         Entity copy = this.getType().create(destination, EntitySpawnReason.DIMENSION_TRAVEL);
+         copy.restoreFrom(this);
+         copy.transform(pos, yaw, pitch, velocity);
++        if (copy instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon dragon) dragon.syncDragonPartsAfterTeleportTransform(); // Canvas - Sync dragon part when teleportation or first created
+         // vanilla code used to call remove _after_ copying, and some stuff is required to be after copy - so add hook here
+         // for example, clearing of inventory after switching dimensions
+         this.postRemoveAfterChangingDimensions();
 @@ -4568,7 +_,7 @@
      public boolean endPortalLogicAsync(BlockPos portalPos) {
          ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this, "Cannot portal entity async");
