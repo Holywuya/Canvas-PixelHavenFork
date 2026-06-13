@@ -14,7 +14,8 @@ build
 /paper-server
 /paper-api
 /generated-patches
-
+.codeartsdoer
+.arts
 .idea/
 /local/
 

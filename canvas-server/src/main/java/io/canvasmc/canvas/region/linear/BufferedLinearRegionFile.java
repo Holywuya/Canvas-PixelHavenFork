@@ -29,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -65,7 +66,7 @@ public class BufferedLinearRegionFile implements IRegionFile {
     private static final class Bucket {
         private final Object lock = new Object();
 
-        private volatile boolean dirty = false;
+        private final AtomicInteger dirtyCount = new AtomicInteger(0);
         private volatile boolean loaded = false;
     }
 
@@ -137,23 +138,29 @@ public class BufferedLinearRegionFile implements IRegionFile {
         }
     }
 
-    private void makeBucketDirty(int chunkIndex) {
+    private void increaseDirty(int chunkIndex) { // Canvas - Improved bucket dirty marking
         final int bucketIndex = chunkIndex >> BUCKET_SHIFT;
         final Bucket bucket = this.buckets[bucketIndex];
 
-        bucket.dirty = true;
+        bucket.dirtyCount.getAndIncrement();
     }
 
-    private void markAsNotDirty(int bucketIndex) {
+    private boolean tryResetBucketDirtyState(int bucketIndex, int expected) { // Canvas - Improved bucket dirty marking
         final Bucket bucket = this.buckets[bucketIndex];
 
-        bucket.dirty = false;
+        return bucket.dirtyCount.compareAndSet(expected, 0);
+    }
+
+    private int dirtyCountOfBucket(int bucketIndex) { // Canvas - Improved bucket dirty marking
+        final Bucket bucket = this.buckets[bucketIndex];
+
+        return bucket.dirtyCount.get();
     }
 
     private boolean isBucketDirty(int bucketIndex) {
         final Bucket bucket = this.buckets[bucketIndex];
 
-        return bucket.dirty;
+        return bucket.dirtyCount.get() > 0;
     }
 
     public boolean markAsBeingSynced() {
@@ -544,7 +551,7 @@ public class BufferedLinearRegionFile implements IRegionFile {
             this.regionObjectLock.writeLock().unlock();
         }
 
-        this.makeBucketDirty(chunkOrdinal);
+        this.increaseDirty(chunkOrdinal); // Canvas - Improved bucket dirty marking
         this.markAsToSync();
     }
 
@@ -671,7 +678,7 @@ public class BufferedLinearRegionFile implements IRegionFile {
 
         this.writeChunk(pos.x, pos.z, buf);
 
-        this.makeBucketDirty(chunkIndex);
+        this.increaseDirty(chunkIndex); // Canvas - Improved bucket dirty marking
     }
 
     // MCC 的玩意,这东西也用不上给Linear了()
@@ -889,7 +896,7 @@ public class BufferedLinearRegionFile implements IRegionFile {
             BufferedLinearRegionFile.this.writeChunk(this.pos.x, this.pos.z, bytebuffer);
             BufferedLinearRegionFile.this.flushInternal();
 
-            BufferedLinearRegionFile.this.makeBucketDirty(chunkIndex);
+            BufferedLinearRegionFile.this.increaseDirty(chunkIndex); // Canvas - Improved bucket dirty marking
         }
     }
 
@@ -916,6 +923,11 @@ public class BufferedLinearRegionFile implements IRegionFile {
             // Open old file to copy non-dirty buckets
             long[] oldPositionTable = null;
             FileChannel oldChannel = null;
+
+            final int[] bucketDirtyCounterSnapshots = new int[BUCKET_COUNT]; // Canvas - Improved bucket dirty marking
+            for (int i = 0; i < BUCKET_COUNT; i++) {
+                bucketDirtyCounterSnapshots[i] = BufferedLinearRegionFile.this.dirtyCountOfBucket(i);
+            }
 
             this.masterFileLock.writeLock().lock();
             try {
@@ -1067,10 +1079,18 @@ public class BufferedLinearRegionFile implements IRegionFile {
                 this.masterFileLock.writeLock().unlock();
             }
 
+            boolean flushDirtyFailed = false; // Canvas - Improved bucket dirty marking
             for (int i = 0; i < syncedBuckets.length; i++) {
                 if (syncedBuckets[i]) {
-                    BufferedLinearRegionFile.this.markAsNotDirty(i);
+                    final int snapshot = bucketDirtyCounterSnapshots[i];
+
+                    flushDirtyFailed |= !BufferedLinearRegionFile.this.tryResetBucketDirtyState(i, snapshot);
                 }
+            }
+
+            if (flushDirtyFailed) {
+                // still have dirty buckets, raise or notify for sync
+                BufferedLinearRegionFile.this.markAsToSync();
             }
         }
 
@@ -1245,7 +1265,7 @@ public class BufferedLinearRegionFile implements IRegionFile {
                                 final int blinearBucketIndex = chunkIndex >> BUCKET_SHIFT;
                                 final Bucket bucket = BufferedLinearRegionFile.this.buckets[blinearBucketIndex];
 
-                                bucket.dirty = true;
+                                bucket.dirtyCount.getAndIncrement(); // Canvas - Improved bucket dirty marking
 
                                 synchronized (bucket.lock) {
                                     bucket.loaded = true;
@@ -1302,7 +1322,7 @@ public class BufferedLinearRegionFile implements IRegionFile {
                             bucket.loaded = true;
                         }
 
-                        bucket.dirty = true;
+                        bucket.dirtyCount.getAndIncrement(); // Canvas - Improved bucket dirty marking
 
                         BufferedLinearRegionFile.this.writeChunkDataRaw(index, sectorDataNioBuffer, false);
                     }
@@ -1355,7 +1375,7 @@ public class BufferedLinearRegionFile implements IRegionFile {
                         final int bucketIndex = i >> BUCKET_SHIFT;
                         final Bucket bucket = BufferedLinearRegionFile.this.buckets[bucketIndex];
 
-                        bucket.dirty = true;
+                        bucket.dirtyCount.getAndIncrement(); // Canvas - Improved bucket dirty marking
 
                         BufferedLinearRegionFile.this.writeChunk(x, z, chunkDataNioBuffer);
 
