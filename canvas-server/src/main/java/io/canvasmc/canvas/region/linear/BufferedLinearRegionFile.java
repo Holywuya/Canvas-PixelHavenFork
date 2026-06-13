@@ -1203,6 +1203,7 @@ public class BufferedLinearRegionFile implements IRegionFile {
 
 
         private void parseLinearV2(@NonNull DataInputStream ioStream, Path file) throws IOException {
+            try (ioStream) { // Canvas - Fix not closed stream
             ioStream.readLong(); // Skip newestTimestamp (Long)
 
             byte gridSize = ioStream.readByte();
@@ -1293,6 +1294,7 @@ public class BufferedLinearRegionFile implements IRegionFile {
             if (footerSuperBlock != LINEAR_FILE_SUPER_BLOCK) {
                 throw new IOException("Footer superblock invalid " + file);
             }
+            } // Canvas - Fix not closed stream
         }
 
         private boolean tryParseBlinearV2(@NotNull DataInputStream ioStream, Path file) throws IOException {
