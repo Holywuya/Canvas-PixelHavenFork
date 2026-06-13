@@ -521,9 +521,13 @@ public class BufferedLinearRegionFile implements IRegionFile {
     }
 
     private @Nullable ByteBuffer readChunkDataRaw(int chunkOrdinal) throws IOException {
+        return this.readChunkDataRaw(chunkOrdinal, true); // Canvas - Fix missing locks
+    }
+
+    private @Nullable ByteBuffer readChunkDataRaw(int chunkOrdinal, boolean acquireLock) throws IOException { // Canvas - Fix missing locks
         final ByteBuffer raw;
 
-        this.regionObjectLock.readLock().lock();
+        if (acquireLock) this.regionObjectLock.readLock().lock();
         try {
             final Sector sector = this.sectors[chunkOrdinal];
 
@@ -533,7 +537,7 @@ public class BufferedLinearRegionFile implements IRegionFile {
 
             raw = sector.read(this.swapFileChannel);
         } finally {
-            this.regionObjectLock.readLock().unlock();
+            if (acquireLock) this.regionObjectLock.readLock().unlock(); // Canvas - Fix missing locks
         }
 
         return this.compressingOps.fromCommitedSection(raw);
@@ -893,10 +897,9 @@ public class BufferedLinearRegionFile implements IRegionFile {
             final int chunkIndex = getChunkIndex(this.pos.x, this.pos.z);
 
             BufferedLinearRegionFile.this.ensureBucketLoaded(chunkIndex);
+            BufferedLinearRegionFile.this.increaseDirty(chunkIndex); // Canvas - dirty before write to prevent race
             BufferedLinearRegionFile.this.writeChunk(this.pos.x, this.pos.z, bytebuffer);
             BufferedLinearRegionFile.this.flushInternal();
-
-            BufferedLinearRegionFile.this.increaseDirty(chunkIndex); // Canvas - Improved bucket dirty marking
         }
     }
 
@@ -961,6 +964,7 @@ public class BufferedLinearRegionFile implements IRegionFile {
                     }
                 }
 
+                BufferedLinearRegionFile.this.regionObjectLock.readLock().lock(); // Canvas - Fix missing locks
                 try (FileChannel outChannel = FileChannel.open(tmpFilePath,
                         StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
 
@@ -989,7 +993,7 @@ public class BufferedLinearRegionFile implements IRegionFile {
 
                             for (int i = 0; i < BUCKET_SIZE; i++) {
                                 // swap read lock
-                                final ByteBuffer data = BufferedLinearRegionFile.this.readChunkDataRaw(baseChunk + i);
+                                final ByteBuffer data = BufferedLinearRegionFile.this.readChunkDataRaw(baseChunk + i, false); // Canvas - Fix missing locks
 
                                 // note: null -> no data contained
                                 if (data == null) {
@@ -1056,6 +1060,7 @@ public class BufferedLinearRegionFile implements IRegionFile {
 
                     outChannel.force(true);
                 } finally {
+                    BufferedLinearRegionFile.this.regionObjectLock.readLock().unlock(); // Canvas - Fix missing locks
                     if (oldChannel != null) {
                         oldChannel.close();
                     }
@@ -1085,7 +1090,11 @@ public class BufferedLinearRegionFile implements IRegionFile {
                     final int snapshot = bucketDirtyCounterSnapshots[i];
 
                     flushDirtyFailed |= !BufferedLinearRegionFile.this.tryResetBucketDirtyState(i, snapshot);
+                    continue;
                 }
+
+                // else: newly dirty marked during sync
+                flushDirtyFailed |= BufferedLinearRegionFile.this.isBucketDirty(i);
             }
 
             if (flushDirtyFailed) {
